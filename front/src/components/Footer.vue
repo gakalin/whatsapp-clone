@@ -1,6 +1,6 @@
 <template>
-  <v-footer absolute color="red">
-    <v-card flat align="center" justify="center" width="100%" class="red">
+  <v-footer absolute color="grey darken-3">
+    <v-card flat align="center" justify="center" width="100%" color="grey darken-3">
       <v-btn icon class="mx-2" href="https://github.com/gakalin">
         <v-icon medium color="white">mdi-github</v-icon>
       </v-btn>
@@ -8,7 +8,7 @@
         <v-icon medium color="white">mdi-email</v-icon>
       </v-btn>
     </v-card>
-    <v-card flat align="center" justify="center" width="100%" class="red">
+    <v-card flat align="center" justify="center" width="100%" color="grey darken-3">
       <v-card-text class="white--text">
         {{ new Date().getFullYear() }} - Designed & Coded by <strong>Gökberk Akalın</strong>  
       </v-card-text> 
