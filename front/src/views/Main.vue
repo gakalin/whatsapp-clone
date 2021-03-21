@@ -4,7 +4,7 @@
       
       <v-card flat width="100%" height="60" color="#EDEDED" class="px-4 py-3 d-flex justify-space-between rounded-0">
         <v-avatar size="38" class="rounded-circle">
-          <img src="../assets/blank_avatar.jpg">
+          <img :src="this.$store.getters.getAvatar">
         </v-avatar>
 
         <div>
