@@ -100,7 +100,11 @@
 
 <script>
 export default {
-
+  beforeMount() {
+    if (!this.$store.state.userId) {
+      this.$router.push({ name: 'Login' });
+    }
+  }
 }
 </script>
 

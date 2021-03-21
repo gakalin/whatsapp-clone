@@ -25,6 +25,11 @@ import Footer from '@/components/Footer.vue';
 export default {
   components: {
     Footer,
+  },
+  beforeMount() {
+    if (this.$store.state.userId) {
+      this.$router.push({ name: 'App' });
+    }
   }
 }
 </script>
