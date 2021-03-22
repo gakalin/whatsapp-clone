@@ -14,7 +14,7 @@ const UserSchema = yup.object().shape({
     password: yup
         .string()
         .trim()
-        .test('strongPassword', 'Password needs to contain at least 1 number, 1 uppercase, 1 lowercase characters (min 6 chars)', value => validator.isStrongPassword(value, { minLength: 6, minLowercase: 1, minUpperCase: 1, minSymbols: 0, returnScore: false })),
+        .test('strongPassword', 'Password needs to contain at least 1 number, 1 uppercase, 1 lowercase characters (min 6 chars)', value => validator.isStrongPassword(value ? value.toString() : '', { minLength: 6, minLowercase: 1, minUpperCase: 1, minSymbols: 0, returnScore: false })),
     passwordConfirm: yup
         .array()
         .test('passwordConfirm', 'Passwords doesn\'t match', value => value[0] == value[1]),
