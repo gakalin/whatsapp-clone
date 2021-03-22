@@ -11,6 +11,8 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "mongoose": "^5.12.1"
+    "mongoose": "^5.12.1",
+    "validator": "^13.5.2",
+    "yup": "^0.32.9"
   }
 }
