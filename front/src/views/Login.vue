@@ -125,7 +125,20 @@ export default {
     },
     login() {
       if (this.$refs.loginForm.validate()) {
-        console.log('valid');
+        this.$axios({ url: '/user/login', method: 'post', data: {
+          email: this.email,
+          password: this.userPw1,
+        }})
+        .then((result) => {
+          if (result.data.success) {
+            this.$store.commit('setUserInfos', result.data.data);
+            this.$router.push({ name: 'App' });
+          }
+        })
+        .catch((error) => {
+          if (error.response.data.message)
+            this.$toast.error(Array.isArray(error.response.data.message) ? error.response.data.message.join('\n') : error.response.data.message);
+        });
       }
     }
   },
@@ -134,7 +147,7 @@ export default {
   },
   beforeMount() {
     if (this.$store.state.userId) {
-      this.$router.push({ name: 'App' });
+      this.$router.go({ name: 'App' });
     }
   }
 }
