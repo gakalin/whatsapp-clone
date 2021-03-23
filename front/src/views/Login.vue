@@ -107,7 +107,20 @@ export default {
     },
     register() {
       if (this.$refs.registerForm.validate()) {
-        console.log('valid');
+        this.$axios({ url: '/user/register', method: 'post', data: {
+          email: this.email,
+          userName: this.userName,
+          password: this.userPw1,
+          passwordConfirm: this.userPw2,
+        }})
+        .then((result) => {
+          if (result.data.success)
+            this.$toast.success(result.data.message);
+        })
+        .catch((error) => {
+          if (error.response.data.message)
+            this.$toast.error(Array.isArray(error.response.data.message) ? error.response.data.message.join('\n') : error.response.data.message);
+        })
       }
     },
     login() {

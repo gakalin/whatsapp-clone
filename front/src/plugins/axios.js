@@ -1,12 +1,13 @@
-"use strict";
-
 import Vue from 'vue';
 import axios from "axios";
 
-axios.defaults.baseURL = process.env.serviceURL;
+axios.defaults.baseURL = process.env.VUE_APP_SERVICEURL;
 
 let config = {
   withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  }
 };
 
 const _axios = axios.create(config);
