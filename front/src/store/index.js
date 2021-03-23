@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
@@ -10,11 +10,9 @@ export default new Vuex.Store({
     'userAbout': null,
     'userAvatar': null,
     'userFriends': [],
+    'token': null,
   },
   getters: {
-    getAvatar(state) {
-      return state.userAvatar ? state.userAvatar : '../assets/blank_avatar.jpg';
-    }
   },
   mutations: {
   },
