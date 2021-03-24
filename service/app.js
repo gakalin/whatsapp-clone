@@ -4,9 +4,11 @@ const app = express();
 const db = require('./db/connection')();
 const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
+const cookieParser = require('cookie-parser');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 app.use(cors({ origin: process.env.CORS_URL, credentials: true }));
 app.use(mongoSanitize());
 

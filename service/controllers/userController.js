@@ -6,6 +6,36 @@ const jwt = require('jsonwebtoken');
 
 const userController = {};
 
+/* Auth */
+userController.auth = async (req, res) => {
+    try {
+        if (!req.cookies.chatAppAuth)
+            return res.sendStatus(203);
+        
+        jwt.verify(req.cookies.chatAppAuth, process.env.JWT_SECRETKEY, async(err, data) => {
+            if (!err && data) {
+                let _id = data.payload;
+                let user = await UserSchema.find({ $and: [{ _id }, { token: req.cookies.chatAppAuth }] }).exec();
+
+                if (!user || user.length < 1) {
+                    res.clearCookie('chatAppAuth');
+                    return res.sendStatus(203);
+                }
+
+                let obj = {...user[0]._doc};
+                delete obj.password;
+                obj.token = req.cookies.chatAppAuth;
+                return res.status(200).json({
+                    success: true,
+                    data: obj,
+                })
+            }
+        })
+    } catch (error) {
+        return res.sendStatus(203);
+    }
+};
+
 /* User Login */
 userController.login = async (req, res) => {
     try {
@@ -32,7 +62,7 @@ userController.login = async (req, res) => {
                 abortEarly: true,
             })
             .then(() => {                
-                jwt.sign({ payload: obj._id }, process.env.JWT_SECRETKEY, (err, token) => {
+                jwt.sign({ payload: obj._id }, process.env.JWT_SECRETKEY, async (err, token) => {
                     if (err)
                         throw err;
 
@@ -41,6 +71,8 @@ userController.login = async (req, res) => {
                         maxAge: (60 * 60 * 24) * 1000,
                         httpOnly: true,
                     });
+
+                    await UserSchema.findOneAndUpdate({ _id: obj._id}, { token }, { upsert: true });
 
                     return res.status(200).json({
                         success: true,
@@ -54,8 +86,9 @@ userController.login = async (req, res) => {
                     message: error.errors,
                 });  
             })
+        
     } catch (error) {
-        res.status(401).json({
+        return res.status(401).json({
             success: false,
             message: error,
         });       
@@ -101,7 +134,7 @@ userController.register = async (req, res) => {
                 })
             })
     } catch (error) {
-        res.status(401).json({
+        return res.status(401).json({
             success: false,
             message: error,
         })
