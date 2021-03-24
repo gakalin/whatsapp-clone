@@ -3,17 +3,45 @@ const UserSchema = require('../db/schemas/UserSchema');
 const LoginValidator = require('../validator/LoginValidator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const axios = require('axios');
 
 const userController = {};
 
 /* Google Auth */
 userController.googleAuth = async (req, res) => {
     try {
-        let code = req.body.code;
-        if (!code)
+        if (!req.body.code)
             return res.sendStatus(203);
+        
+        let { data } = await axios({
+            url: 'https://oauth2.googleapis.com/token',
+            method: 'post',
+            data: {
+                client_id: process.env.GOOGLE_CLIENTID,
+                client_secret: process.env.GOOGLE_SECRET,
+                redirect_uri: 'http://localhost:8080/login',
+                grant_type: 'authorization_code',
+                code: req.body.code,
+            }
+        });
+
+        axios({
+            url: 'https://www.googleapis.com/oauth2/v2/userinfo',
+            method: 'get',
+            headers: {
+                Authorization: `Bearer ${data.access_token}`,
+            },
+        }).then((result) => {
+            console.log(result.data);
+            // -
+            return res.sendStatus(200);
+        }).catch((error) => {
+            console.log('err1', error);
+            return res.sendStatus(203);
+        });
 
     } catch (error) {
+        console.log('err3', error);
         return res.sendStatus(203);
     }
 };
