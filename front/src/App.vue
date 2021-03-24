@@ -9,6 +9,15 @@
 <script>
 
 export default {
+  beforeMount() {
+    this.$axios({ url: '/user/auth', method: 'get', data: {}})
+      .then((result) => {
+        if (result.data.success) {
+            this.$store.commit('setUserInfos', result.data.data);
+            this.$router.push({ name: 'App' });
+        }
+      });
+  },
   mounted() {
     if (!this.$store.state.userId) {
       this.$router.push({ name: 'Login' });
