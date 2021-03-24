@@ -6,6 +6,18 @@ const jwt = require('jsonwebtoken');
 
 const userController = {};
 
+/* Google Auth */
+userController.googleAuth = async (req, res) => {
+    try {
+        let code = req.body.code;
+        if (!code)
+            return res.sendStatus(203);
+
+    } catch (error) {
+        return res.sendStatus(203);
+    }
+};
+
 /* Auth */
 userController.auth = async (req, res) => {
     try {
@@ -29,7 +41,8 @@ userController.auth = async (req, res) => {
                     success: true,
                     data: obj,
                 })
-            }
+            } else
+                return res.sendStatus(203);
         })
     } catch (error) {
         return res.sendStatus(203);

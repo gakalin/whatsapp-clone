@@ -37,7 +37,7 @@
           </v-icon>
           Register
         </v-btn>
-        <v-btn center color="red" elevation="2" x-large rounded class="white--text mt-5">
+        <v-btn :href="googleLoginUrl" center color="red" elevation="2" x-large rounded class="white--text mt-5">
           <v-icon left large class="mx-2 pr-2">
             mdi-google
           </v-icon>
@@ -60,8 +60,11 @@
 <script>
 import Footer from '@/components/Footer.vue';
 import validator from 'validator';
+import queryString from 'query-string';
+
 export default {
   data: () => ({
+    /* Form Validations and Datas */
     registerValid: true,
     registerPanel: false,
     email: null,
@@ -86,7 +89,7 @@ export default {
     loginValid: true,
     loginPasswordRules: [
       v => !!v || 'Password is required',
-    ],
+    ]
   }),
   watch: {
     userPw1() {
@@ -99,7 +102,22 @@ export default {
         v => !!v || 'Need to confirm your password',
         v => (this.userPw1 == v) || 'Passwords doesn\'t match',  
       ];
-    }
+    },
+    googleLoginUrl() {
+        let params = queryString.stringify({
+          client_id: process.env.VUE_APP_GOOGLECLIENTID,
+          redirect_uri: process.env.VUE_APP_GOOGLEAUTHREDIRECTURI,
+          scope: [
+              'https://www.googleapis.com/auth/userinfo.email',
+              'https://www.googleapis.com/auth/userinfo.profile',
+          ].join(' '),
+          response_type: 'code',
+          access_type: 'offline',
+          prompt: 'consent',
+        });
+
+        return `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
+    },
   },
   methods: {
     registerPanelToggle(val) {
@@ -144,6 +162,21 @@ export default {
   },
   components: {
     Footer,
+  },
+  mounted() {
+    if (this.$route.query.code) {
+      this.$axios({ url: '/user/googleAuth', method: 'post', data: { code: this.$route.query.code }})
+        .then((result) => {
+          if (result.data.success) {
+            this.$store.commit('setUserInfos', result.data.data);
+            this.$router.push({ name: 'App' });
+          } else
+            this.$toas.error('Google authentication error');
+        })
+        .catch(() => {
+          this.$toast.error('Google authentication error');
+        })
+    }
   },
   beforeMount() {
     if (this.$store.state.userId) {
