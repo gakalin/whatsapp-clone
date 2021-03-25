@@ -133,7 +133,8 @@ export default {
         }})
         .then((result) => {
           if (result.data.success)
-            this.$toast.success(result.data.message);
+            this.$store.commit('setUserInfos', result.data.data);
+            this.$router.push({ name: 'App' });
         })
         .catch((error) => {
           if (error.response.data.message)
