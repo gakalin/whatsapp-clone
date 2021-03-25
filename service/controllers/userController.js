@@ -157,15 +157,11 @@ userController.register = async (req, res) => {
                     password: bcrypt.hashSync(req.body.password, 12),
                     about: '',
                     avatar: '',
-                }, (err, user) => {
+                }, async (err, user) => {
                     if (err)
                         throw err;
 
-                    return res.status(201).json({
-                        success: true,
-                        message: 'Registration completed',
-                        data: user,
-                    })
+                    await login(user, res);
                 })
             })
             .catch((error) => {
