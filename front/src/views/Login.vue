@@ -43,7 +43,7 @@
           </v-icon>
           Login with Google
         </v-btn>
-        <v-btn center color="blue accent-3" elevation="2" x-large rounded class="white--text mt-5">
+        <v-btn :href="discordLoginUrl" center color="blue accent-3" elevation="2" x-large rounded class="white--text mt-5">
           <v-icon left large class="mx-2 pr-2">
             mdi-discord
           </v-icon>
@@ -118,6 +118,9 @@ export default {
 
         return `https://accounts.google.com/o/oauth2/v2/auth?${params}`;
     },
+    discordLoginUrl() {
+      return process.env.VUE_APP_DISCORDLOGINURL;
+    },
   },
   methods: {
     registerPanelToggle(val) {
@@ -166,21 +169,23 @@ export default {
   },
   mounted() {
     if (this.$route.params.app && this.$route.query.code) {
-      if (this.$route.params.app === 'google') {
-        this.$axios({ url: '/user/googleAuth', method: 'post', data: { code: this.$route.query.code }})
-          .then((result) => {
-            if (result.data.success) {
-              this.$store.commit('setUserInfos', result.data.data);
-              this.$router.push({ name: 'App' }).catch(() => {});
-            } else
-              this.$toas.error('Google authentication error');
-          })
-          .catch(() => {
-            this.$toast.error('Google authentication error');
-          })
-      } else if (this.$route.params.app === 'discord') {
-        console.log('discord');
-      }
+      let endpoint = '';
+      if (this.$route.params.app === 'google')
+        endpoint = 'googleAuth';
+      else if (this.$route.params.app === 'discord')
+        endpoint = 'discordAuth';
+
+      this.$axios({ url: `user/${endpoint}`, method: 'post', data: { code: this.$route.query.code }})
+        .then((result) => {
+          if (result.data.success) {
+            this.$store.commit('setUserInfos', result.data.data);
+            this.$router.push({ name: 'App' }).catch(() => {});
+          } else
+            this.$toas.error('Authentication error');
+        })
+        .catch(() => {
+          this.$toast.error('Authentication error');
+        })
     }
   },
   beforeMount() {

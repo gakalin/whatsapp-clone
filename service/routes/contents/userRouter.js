@@ -7,5 +7,6 @@ module.exports = (app) => {
     userRouter.post('/login', userController.login);
     userRouter.get('/auth', userController.auth);
     userRouter.post('/googleAuth', userController.googleAuth);
+    userRouter.post('/discordAuth', userController.discordAuth);
     app.use('/user', userRouter);
 }

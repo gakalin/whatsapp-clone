@@ -5,8 +5,56 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const login = require('../methods/login');
+const discordOauth2 = require('discord-oauth2');
+const oauth = new discordOauth2();
 
 const userController = {};
+
+/* Discord Auth */
+userController.discordAuth = async (req, res) => {
+    try {
+        if (!req.body.code)
+            return res.sendStatus(203);
+
+        oauth.tokenRequest({
+            clientId: process.env.DISCORD_CLIENTID,
+            clientSecret: process.env.DISCORD_SECRET,
+            code: req.body.code,
+            scope: ['identify', 'email'],
+            grantType: 'authorization_code',
+            redirectUri: process.env.DISCORD_REDIRECTURI,
+        }).then(async (data) => {
+            if (!data)
+                return res.sendStatus(203);
+            
+            let user = await oauth.getUser(data.access_token);
+
+            if (!user)
+                return res.sendStatus(203);
+
+            let userExisted = await UserSchema.find({ email: user.email });
+            if (userExisted[0])
+                login(userExisted[0], res);
+            else {
+                UserSchema.create({
+                    email: user.email,
+                    userName: user.username,
+                    avatar: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.jpg`,
+                    about: '',
+                    friends: [],
+                }, async (err, newUser) => {
+                    if (err)
+                        return res.sendStatus(203);
+                    
+                    await login(newUser, res);                
+                })
+            }
+        })
+    } catch (error) {
+        console.log(error);
+        return res.sendStatus(203);
+    }
+}
 
 /* Google Auth */
 userController.googleAuth = async (req, res) => {
