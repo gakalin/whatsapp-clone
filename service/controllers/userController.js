@@ -4,6 +4,7 @@ const LoginValidator = require('../validator/LoginValidator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
+const login = require('../methods/login');
 
 const userController = {};
 
@@ -19,7 +20,7 @@ userController.googleAuth = async (req, res) => {
             data: {
                 client_id: process.env.GOOGLE_CLIENTID,
                 client_secret: process.env.GOOGLE_SECRET,
-                redirect_uri: 'http://localhost:8080/login',
+                redirect_uri: process.env.GOOGLE_REDIRECTURI,
                 grant_type: 'authorization_code',
                 code: req.body.code,
             }
@@ -31,17 +32,29 @@ userController.googleAuth = async (req, res) => {
             headers: {
                 Authorization: `Bearer ${data.access_token}`,
             },
-        }).then((result) => {
-            console.log(result.data);
-            // -
-            return res.sendStatus(200);
+        }).then(async (result) => {
+            let userExisted = await UserSchema.find({ email: result.data.email });
+            if (userExisted[0]) {
+                await login(userExisted[0], res);  
+            } else {
+                UserSchema.create({
+                    email: result.data.email,
+                    userName: result.data.name,
+                    avatar: result.data.picture,
+                    about: '',
+                    friends: [],
+                }, async (err, user) => {
+                    if (err)
+                        return res.sendStatus(203);
+
+                    await login(user, res);
+                });
+            }
         }).catch((error) => {
-            console.log('err1', error);
             return res.sendStatus(203);
         });
 
     } catch (error) {
-        console.log('err3', error);
         return res.sendStatus(203);
     }
 };
@@ -63,7 +76,9 @@ userController.auth = async (req, res) => {
                 }
 
                 let obj = {...user[0]._doc};
-                delete obj.password;
+                if (obj.password)
+                    delete obj.password;
+                    
                 obj.token = req.cookies.chatAppAuth;
                 return res.status(200).json({
                     success: true,
@@ -80,6 +95,9 @@ userController.auth = async (req, res) => {
 /* User Login */
 userController.login = async (req, res) => {
     try {
+        if (req.cookies.chatAppAuth)
+            return res.sendStatus(400);
+
         let email = typeof req.body.email !== 'undefined' ? req.body.email : '';
         let password = typeof req.body.password !== 'undefined' ? req.body.password : '';
 
@@ -102,25 +120,7 @@ userController.login = async (req, res) => {
             }, {
                 abortEarly: true,
             })
-            .then(() => {                
-                jwt.sign({ payload: obj._id }, process.env.JWT_SECRETKEY, async (err, token) => {
-                    if (err)
-                        throw err;
-
-                    obj.token = token;
-                    res.cookie('chatAppAuth', token, {
-                        maxAge: (60 * 60 * 24) * 1000,
-                        httpOnly: true,
-                    });
-
-                    await UserSchema.findOneAndUpdate({ _id: obj._id}, { token }, { upsert: true });
-
-                    return res.status(200).json({
-                        success: true,
-                        data: obj,
-                    })
-                })
-            })
+            .then(async () => await login(obj, res))
             .catch((error) => {
                 return res.status(401).json({
                     success: false,
