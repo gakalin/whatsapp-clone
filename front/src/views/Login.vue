@@ -134,7 +134,7 @@ export default {
         .then((result) => {
           if (result.data.success)
             this.$store.commit('setUserInfos', result.data.data);
-            this.$router.push({ name: 'App' });
+            this.$router.push({ name: 'App' }).catch(() => {});
         })
         .catch((error) => {
           if (error.response.data.message)
@@ -151,7 +151,7 @@ export default {
         .then((result) => {
           if (result.data.success) {
             this.$store.commit('setUserInfos', result.data.data);
-            this.$router.push({ name: 'App' });
+            this.$router.push({ name: 'App' }).catch(() => {});
           }
         })
         .catch((error) => {
@@ -165,23 +165,27 @@ export default {
     Footer,
   },
   mounted() {
-    if (this.$route.query.code) {
-      this.$axios({ url: '/user/googleAuth', method: 'post', data: { code: this.$route.query.code }})
-        .then((result) => {
-          if (result.data.success) {
-            this.$store.commit('setUserInfos', result.data.data);
-            this.$router.push({ name: 'App' });
-          } else
-            this.$toas.error('Google authentication error');
-        })
-        .catch(() => {
-          this.$toast.error('Google authentication error');
-        })
+    if (this.$route.params.app && this.$route.query.code) {
+      if (this.$route.params.app === 'google') {
+        this.$axios({ url: '/user/googleAuth', method: 'post', data: { code: this.$route.query.code }})
+          .then((result) => {
+            if (result.data.success) {
+              this.$store.commit('setUserInfos', result.data.data);
+              this.$router.push({ name: 'App' }).catch(() => {});
+            } else
+              this.$toas.error('Google authentication error');
+          })
+          .catch(() => {
+            this.$toast.error('Google authentication error');
+          })
+      } else if (this.$route.params.app === 'discord') {
+        console.log('discord');
+      }
     }
   },
   beforeMount() {
     if (this.$store.state.userId) {
-      this.$router.go({ name: 'App' });
+      this.$router.push({ name: 'App' }).catch(() => {});
     }
   }
 }

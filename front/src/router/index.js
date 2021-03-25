@@ -1,6 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+import MainRouter from '../views/Main.vue'
+import LoginRouter from '../views/Login.vue';
+
 Vue.use(VueRouter)
 
 const routes = [
@@ -8,12 +11,12 @@ const routes = [
   {
     path: '/app',
     name: 'App',
-    component: () => import('../views/Main.vue'),
+    component: MainRouter,
   },
   {
-    path: '/login',
+    path: '/login/:app?',
     name: 'Login',
-    component: () => import('../views/Login.vue'),
+    component: LoginRouter,
   }
 
 ]
