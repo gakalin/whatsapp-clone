@@ -1,6 +1,7 @@
 const express = require('express');
 const userRouter = express.Router();
 const userController = require("../../controllers/userController");
+const auth = require('../../middlewares/auth');
 
 module.exports = (app) => {
     userRouter.post('/register', userController.register);
@@ -9,5 +10,6 @@ module.exports = (app) => {
     userRouter.post('/googleAuth', userController.googleAuth);
     userRouter.post('/discordAuth', userController.discordAuth);
     userRouter.put('/logout', userController.logout);
+    userRouter.put('/profile', auth, userController.profile);
     app.use('/user', userRouter);
 }

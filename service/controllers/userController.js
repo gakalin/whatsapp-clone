@@ -1,4 +1,5 @@
 const UserValidator = require('../validator/UserValidator');
+const UserProfileValidator = require('../validator/UserProfileValidator');
 const UserSchema = require('../db/schemas/UserSchema');
 const LoginValidator = require('../validator/LoginValidator');
 const bcrypt = require('bcrypt');
@@ -9,6 +10,40 @@ const discordOauth2 = require('discord-oauth2');
 const oauth = new discordOauth2();
 
 const userController = {};
+
+/* Profile Data Update */
+userController.profile = (req, res) => {
+    try {
+        if (!res.locals.userId)
+            return res.sendStatus(204);
+
+        UserProfileValidator.validate(req.body, { abortEarly: false })
+            .then(async () => {
+                let user = await UserSchema.findOneAndUpdate({ _id: res.locals.userId }, req.body);
+
+                if (!user) {
+                    return res.status(400).json({
+                        success: false,
+                        message: error.errors,
+                    });   
+                } else {
+                    return res.status(200).json({
+                        success: true,
+                        data: user,
+                    });
+                }
+            })
+            .catch((error) => {
+                return res.status(400).json({
+                    success: false,
+                    message: error.errors,
+                });  
+            });
+        
+    } catch (error) {
+        return res.sendStatus(204);
+    }
+};
 
 /* Logout */
 userController.logout = (req, res) => {
