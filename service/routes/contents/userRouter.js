@@ -8,5 +8,6 @@ module.exports = (app) => {
     userRouter.get('/auth', userController.auth);
     userRouter.post('/googleAuth', userController.googleAuth);
     userRouter.post('/discordAuth', userController.discordAuth);
+    userRouter.put('/logout', userController.logout);
     app.use('/user', userRouter);
 }

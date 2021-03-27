@@ -10,6 +10,25 @@ const oauth = new discordOauth2();
 
 const userController = {};
 
+/* Logout */
+userController.logout = (req, res) => {
+    try {
+        if (!req.cookies.chatAppAuth)
+            return res.sendStatus(204);
+
+        jwt.verify(req.cookies.chatAppAuth, process.env.JWT_SECRETKEY, async (err, data) => {
+            if (err || !data)
+                return res.sendStatus(204);
+
+            await UserSchema.findOneAndUpdate({ _id: data.payload }, { token: '' })
+            res.clearCookie('chatAppAuth');
+            return res.sendStatus(200);
+        });
+    } catch (error) {
+        return res.sendStatus(204);
+    }
+};
+
 /* Discord Auth */
 userController.discordAuth = async (req, res) => {
     try {

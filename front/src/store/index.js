@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import router from '../router'
 
 Vue.use(Vuex);
 
@@ -30,6 +31,7 @@ export default new Vuex.Store({
       state.userAvatar = null;
       state.userFriends = null;
       state.token = null;
+      router.go({ name: 'Login '}).catch(() => {});
     },
     setUserInfos(state, data) {
       state.userId = data._id;
@@ -42,8 +44,11 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    logout() {
-      console.log('logged out');
+    logout({ commit }) {
+      Vue.axios({ url: '/user/logout', method: 'put'})
+        .then(() => {
+          commit('deleteUserInfos');
+        })
     },
     changeName() {
       console.log('name change');
