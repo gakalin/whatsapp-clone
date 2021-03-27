@@ -54,7 +54,7 @@ export default new Vuex.Store({
       Vue.axios({ url: '/user/profile', method: 'put', data: { userName: data }})
         .then((result) => {
           if (result.data.success) {
-            Vue.$toast.success('Your profile updated successfully')
+            Vue.$toast.success('Your profile updated successfully');
             commit('setUserInfos', result.data.data);
           }
         })
@@ -62,5 +62,19 @@ export default new Vuex.Store({
           Vue.$toast.error('There are some errors while updating your profile');
         })
     },
+    changeAvatar({ commit }, data) {
+      Vue.axios({ url: '/user/profile', method: 'put', data }, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+      })
+        .then((result) => {
+          Vue.$toast.success('Your avatar changed successfully');
+          commit('setUserInfos', result.data.data);
+        })
+        .catch(() => {
+          Vue.$toast.error('There are some errors while uploading your new avatar');
+        });
+    }
   }
 })

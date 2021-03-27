@@ -17,28 +17,33 @@ userController.profile = (req, res) => {
         if (!res.locals.userId)
             return res.sendStatus(204);
 
-        UserProfileValidator.validate(req.body, { abortEarly: false })
-            .then(async () => {
-                let user = await UserSchema.findOneAndUpdate({ _id: res.locals.userId }, req.body);
+        if (req.body.userName) {
+            UserProfileValidator.validate(req.body, { abortEarly: false })
+                .then(async () => {
+                    let user = await UserSchema.findOneAndUpdate({ _id: res.locals.userId }, req.body);
 
-                if (!user) {
+                    if (!user) {
+                        return res.status(400).json({
+                            success: false,
+                            message: error.errors,
+                        });   
+                    } else {
+                        return res.status(200).json({
+                            success: true,
+                            data: user,
+                        });
+                    }
+                })
+                .catch((error) => {
                     return res.status(400).json({
                         success: false,
                         message: error.errors,
-                    });   
-                } else {
-                    return res.status(200).json({
-                        success: true,
-                        data: user,
-                    });
-                }
-            })
-            .catch((error) => {
-                return res.status(400).json({
-                    success: false,
-                    message: error.errors,
-                });  
-            });
+                    });  
+                });
+        } else {
+            console.log(req.files);
+            return res.sendStatus(200);
+        }
         
     } catch (error) {
         return res.sendStatus(204);

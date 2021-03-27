@@ -5,9 +5,11 @@ const db = require('./db/connection')();
 const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
 const cookieParser = require('cookie-parser');
+const fileUpload = require('express-fileupload');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload());
 app.use(cookieParser());
 app.use(cors({ origin: process.env.CORS_URL, credentials: true }));
 app.use(mongoSanitize());

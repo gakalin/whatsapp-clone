@@ -126,14 +126,19 @@
 
         <div v-if="menu === 'Profile'">
           <v-card flat class="rounded-0 py-7 text-center" color="#EDEDED" height="260px">
-            <v-avatar size="210" class="rounded-circle">
+            <v-avatar size="150" class="rounded-circle">
               <img :src="this.$store.getters.avatar">
             </v-avatar>
+            <v-form class="d-flex justify-content-between px-15" @submit.prevent="changeAvatar()" lazy-validation ref="avatarForm" v-model="avatarValid">
+              <v-file-input v-model="userAvatar" show-size :rules="avatarRules" accept="image/png, image/jpeg" placeholder="Pick an avatar" prepend-icon="mdi-camera"></v-file-input>
+              <v-btn type="submit" class="align-self-center" dense inline icon><v-icon>mdi-refresh</v-icon></v-btn>
+            </v-form>
+            
           </v-card>
           <v-card class="px-8 py-4 rounded-0" height="90px">
             <span style="color: #00BFA5;">Your Name</span>
             <v-form @submit.prevent="changeName()" lazy-validation ref="userNameForm" v-model="userNameValid">
-              <v-text-field v-model="userName" :rules="userNameRules" :counter="30" dense append-outer-icon="mdi-pencil"></v-text-field>
+              <v-text-field :counter="30" v-model="userName" :rules="userNameRules" dense append-outer-icon="mdi-pencil"></v-text-field>
             </v-form>
           </v-card>
         </div>
@@ -202,6 +207,12 @@ export default {
       v => (v && v.length >= 2) || 'Name must be longer than 2 characters',
     ],
     userNameValid: true,
+    avatarRules: [
+      v => !!v || 'Avatar is required',
+      v => !v || v.size < 2000000 || 'Avatar size should be less than 2MB',
+    ],
+    avatarValid: false,
+    userAvatar: null,
   }),
   methods: {
     logout() {
@@ -217,6 +228,13 @@ export default {
     changeName() {
       if (this.$refs.userNameForm.validate()) {
         this.$store.dispatch('changeName', this.userName);
+      }
+    },
+    changeAvatar() {
+      if (this.$refs.avatarForm.validate()) {
+        let formData = new FormData();
+        formData.append('file', this.userAvatar);
+        this.$store.dispatch('changeAvatar', formData);
       }
     }
   },
