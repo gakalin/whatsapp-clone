@@ -181,7 +181,7 @@ export default {
             this.$store.commit('setUserInfos', result.data.data);
             this.$router.push({ name: 'App' }).catch(() => {});
           } else
-            this.$toas.error('Authentication error');
+            this.$toast.error('Authentication error');
         })
         .catch(() => {
           this.$toast.error('Authentication error');

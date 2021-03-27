@@ -14,6 +14,12 @@ export default new Vuex.Store({
     'token': null,
   },
   getters: {
+    avatar(state) {
+      return !state.userAvatar ? require('../assets/blank_avatar.jpg') : state.userAvatar;
+    },
+    userName(state) {
+      return state.userName;
+    }
   },
   mutations: {
     deleteUserInfos(state) {
@@ -36,6 +42,11 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    
+    logout() {
+      console.log('logged out');
+    },
+    changeName() {
+      console.log('name change');
+    },
   }
 })

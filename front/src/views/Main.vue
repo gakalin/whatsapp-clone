@@ -3,13 +3,25 @@
     <v-card flat height="100vh" width="410px" color="white" class="rounded-0"> 
       
       <v-card flat width="100%" height="60" color="#EDEDED" class="px-4 py-3 d-flex justify-space-between rounded-0">
-        <v-avatar size="38" class="rounded-circle">
-          <img src="../assets/blank_avatar.jpg">
+        <v-avatar @click.stop="showMenu('Profile')" size="38" class="rounded-circle">
+          <img :src="this.$store.getters.avatar">
         </v-avatar>
 
         <div>
-          <v-btn icon class="mr-4"><v-icon>mdi-message-text</v-icon></v-btn>
-          <v-btn icon><v-icon>mdi-dots-vertical</v-icon></v-btn>
+          <v-btn @click="showMenu('Notifications')" icon class="mr-4"><v-icon>mdi-message-text</v-icon></v-btn>
+          <v-menu offset-y>
+            <template v-slot:activator="{ on, attrs }">
+              <v-btn icon v-bind="attrs" v-on="on"><v-icon>mdi-dots-vertical</v-icon></v-btn>
+            </template>
+            <v-list dense flat>
+              <v-list-item-group color="primary">
+                <v-list-item @click="showMenu('Online')">Online List</v-list-item>
+                <v-list-item @click="showMenu('Friends')">Friends</v-list-item>
+                <v-list-item @click="showMenu('Profile')">Profile</v-list-item>
+                <v-list-item @click="logout()">Logout</v-list-item>
+              </v-list-item-group>
+            </v-list>
+          </v-menu>
         </div>
       </v-card>
 
@@ -101,6 +113,32 @@
 
     </v-card>
 
+    <v-navigation-drawer width="410px" v-model="drawer" absolute temporary>
+      <v-card flat class="rounded-0" color="#00BFA5" height="110px">
+        <v-card flat class="rounded-0" color="#00BFA5" height="62px"></v-card>
+
+        <v-card dark flat class="pl-4 pb-2 rounded-0" color="#00BFA5">
+          <v-btn class="mr-4" @click.stop="drawer = !drawer" icon>
+            <v-icon>mdi-arrow-left</v-icon>
+          </v-btn>
+          <span class="subtitle-1" v-html="menu"></span>
+        </v-card>
+
+        <div v-if="menu === 'Profile'">
+          <v-card flat class="rounded-0 py-7 text-center" color="#EDEDED" height="260px">
+            <v-avatar size="210" class="rounded-circle">
+              <img :src="this.$store.getters.avatar">
+            </v-avatar>
+          </v-card>
+          <v-card class="px-8 py-4 rounded-0" height="90px">
+            <span style="color: #00BFA5;">Your Name</span>
+            <v-text-field @keyup.enter="changeName()" dense append-outer-icon="mdi-pencil" :value="this.$store.getters.userName"></v-text-field>
+          </v-card>
+        </div>
+      </v-card>
+
+    </v-navigation-drawer>
+
   </v-card>
 </template>
 
@@ -152,6 +190,22 @@
 
 <script>
 export default {
+  data: () => ({
+    drawer: null,
+    menu: null,
+  }),
+  methods: {
+    logout() {
+      this.$store.dispatch('logout');
+    },
+    showMenu(type) {
+      this.drawer = !this.drawer;
+      this.menu = type;
+    },
+    changeName() {
+      this.$store.dispatch('changeName');
+    }
+  },
   beforeMount() {
     /*if (!this.$store.state.userId) {
       this.$router.push({ name: 'Login' }).catch(() => {});

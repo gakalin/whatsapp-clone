@@ -51,7 +51,6 @@ userController.discordAuth = async (req, res) => {
             }
         })
     } catch (error) {
-        console.log(error);
         return res.sendStatus(203);
     }
 }
