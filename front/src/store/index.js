@@ -50,8 +50,13 @@ export default new Vuex.Store({
           commit('deleteUserInfos');
         })
     },
-    changeName() {
-      console.log('name change');
+    changeName({ commit }, data) {
+      Vue.axios({ url: '/user/profile', method: 'put', data: { userName: data }})
+        .then((result) => {
+          if (result.data.success) {
+            commit('setUserInfos', result.data.data);
+          }
+        })
     },
   }
 })

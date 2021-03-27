@@ -132,7 +132,9 @@
           </v-card>
           <v-card class="px-8 py-4 rounded-0" height="90px">
             <span style="color: #00BFA5;">Your Name</span>
-            <v-text-field @keyup.enter="changeName()" dense append-outer-icon="mdi-pencil" :value="this.$store.getters.userName"></v-text-field>
+            <v-form @submit.prevent="changeName()" lazy-validation ref="userNameForm" v-model="userNameValid">
+              <v-text-field v-model="userName" :rules="userNameRules" :counter="30" dense append-outer-icon="mdi-pencil"></v-text-field>
+            </v-form>
           </v-card>
         </div>
       </v-card>
@@ -193,22 +195,37 @@ export default {
   data: () => ({
     drawer: null,
     menu: null,
+    userName: null,
+    userNameRules: [
+      v => !!v || 'Name is required',
+      v => (v && v.length <= 30) || 'Name must be less than 30 characters',
+      v => (v && v.length >= 2) || 'Name must be longer than 2 characters',
+    ],
+    userNameValid: true,
   }),
   methods: {
     logout() {
       this.$store.dispatch('logout');
     },
     showMenu(type) {
+      if (type === 'Profile' && this.$store.state.userName) {
+        this.userName = this.$store.state.userName;
+      }
       this.drawer = !this.drawer;
       this.menu = type;
     },
     changeName() {
-      this.$store.dispatch('changeName');
+      if (this.$refs.userNameForm.validate()) {
+        this.$store.dispatch('changeName', this.userName);
+      }
     }
   },
   beforeMount() {
     if (!this.$store.state.userId) {
       this.$router.push({ name: 'Login' }).catch(() => {});
+    }
+    if (this.$store.state.userName) {
+      this.userName = this.$store.state.userName;
     }
   }
 }
