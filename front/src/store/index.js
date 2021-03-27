@@ -54,8 +54,12 @@ export default new Vuex.Store({
       Vue.axios({ url: '/user/profile', method: 'put', data: { userName: data }})
         .then((result) => {
           if (result.data.success) {
+            Vue.$toast.success('Your profile updated successfully')
             commit('setUserInfos', result.data.data);
           }
+        })
+        .catch(() => {
+          Vue.$toast.error('There are some errors while updating your profile');
         })
     },
   }
