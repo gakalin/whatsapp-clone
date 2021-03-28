@@ -234,6 +234,7 @@ export default {
       if (this.$refs.avatarForm.validate()) {
         let formData = new FormData();
         formData.append('file', this.userAvatar);
+        this.userAvatar = null;
         this.$store.dispatch('changeAvatar', formData);
       }
     }

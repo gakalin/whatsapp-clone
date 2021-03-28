@@ -8,11 +8,12 @@ const axios = require('axios');
 const login = require('../methods/login');
 const discordOauth2 = require('discord-oauth2');
 const oauth = new discordOauth2();
-
+const md5 = require('md5');
 const userController = {};
+const fs = require('fs');
 
 /* Profile Data Update */
-userController.profile = (req, res) => {
+userController.profile = async (req, res) => {
     try {
         if (!res.locals.userId)
             return res.sendStatus(204);
@@ -41,8 +42,36 @@ userController.profile = (req, res) => {
                     });  
                 });
         } else {
-            console.log(req.files);
-            return res.sendStatus(200);
+            if (!req.files || Object.keys(req.files).length < 1) {
+                return res.sendStatus(204);
+            } else if (req.files.file.size > 2000000) {
+                return res.sendStatus(204);
+            } else if (req.files.file.mimetype.localeCompare('image/png') != 0 && req.files.file.mimetype.localeCompare('image/jpeg') != 0) {
+                return res.sendStatus(204);
+            } else {
+                let hashedName = md5(res.locals.userId);
+                let fileType = 'jpg';
+
+                if (req.files.file.mimetype.localeCompare('image/png') == 0)
+                    fileType = 'png';
+                
+                if (fs.existsSync(`${process.env.UPLOAD_DIR}/${hashedName}.jpg`))
+                    fs.unlinkSync(`${process.env.UPLOAD_DIR}/${hashedName}.jpg`);
+
+                if (fs.existsSync(`${process.env.UPLOAD_DIR}/${hashedName}.png`))    
+                    fs.unlinkSync(`${process.env.UPLOAD_DIR}/${hashedName}.png`);
+
+                req.files.file.mv(`${process.env.UPLOAD_DIR}/${hashedName}.${fileType}`, async (err) => {
+                    if (err)
+                        return res.sendStatus(204);
+
+                    let user = await UserSchema.findOneAndUpdate({ _id: res.locals.userId }, { avatar: `${hashedName}.${fileType}` });
+                    return res.status(200).json({
+                        success: true,
+                        data: user,
+                    });
+                });
+            }
         }
         
     } catch (error) {

@@ -16,7 +16,14 @@ export default new Vuex.Store({
   },
   getters: {
     avatar(state) {
-      return !state.userAvatar ? require('../assets/blank_avatar.jpg') : state.userAvatar;
+      let avatar = require('../assets/blank_avatar.jpg');
+      if (state.userAvatar) {
+        if (state.userAvatar.length == 36)
+          avatar = require(`${process.env.VUE_APP_UPLOADDIR}/${state.userAvatar}`);
+        else 
+          avatar = state.userAvatar;
+      }
+      return avatar;
     },
     userName(state) {
       return state.userName;
@@ -67,14 +74,17 @@ export default new Vuex.Store({
         headers: {
             'Content-Type': 'multipart/form-data'
         }
-      })
-        .then((result) => {
+      }).then((result) => {
+        if (result.data.success) {
           Vue.$toast.success('Your avatar changed successfully');
           commit('setUserInfos', result.data.data);
-        })
-        .catch(() => {
+          router.go({ name: 'App' });
+        } else {
           Vue.$toast.error('There are some errors while uploading your new avatar');
-        });
+        }
+      }).catch(() => {
+        Vue.$toast.error('There are some errors while uploading your new avatar');
+      });
     }
   }
 })
