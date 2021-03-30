@@ -13,6 +13,7 @@ export default new Vuex.Store({
     'userAvatar': null,
     'userFriends': [],
     'token': null,
+    'onlineList': [],
   },
   getters: {
     avatar(state) {
@@ -27,9 +28,15 @@ export default new Vuex.Store({
     },
     userName(state) {
       return state.userName;
-    }
+    },
+    onlineList(state) {
+      return state.onlineList;
+    },
   },
   mutations: {
+    setOnlineList(state, data) {
+      state.onlineList = data;
+    },
     deleteUserInfos(state) {
       state.userId = null;
       state.email = null;
@@ -51,6 +58,9 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    socket_onlineList({ commit }, data) {
+      commit('setOnlineList', data);
+    },
     logout({ commit }) {
       Vue.axios({ url: '/user/logout', method: 'put'})
         .then(() => {

@@ -137,6 +137,7 @@ export default {
         .then((result) => {
           if (result.data.success)
             this.$store.commit('setUserInfos', result.data.data);
+            this.$socket.client.emit('login', result.data.data);
             this.$router.push({ name: 'App' }).catch(() => {});
         })
         .catch((error) => {
@@ -154,6 +155,7 @@ export default {
         .then((result) => {
           if (result.data.success) {
             this.$store.commit('setUserInfos', result.data.data);
+            this.$socket.client.emit('login', result.data.data);
             this.$router.push({ name: 'App' }).catch(() => {});
           }
         })
@@ -189,9 +191,9 @@ export default {
     }
   },
   beforeMount() {
-    if (this.$store.state.userId) {
+  /*  if (this.$store.state.userId) {
       this.$router.push({ name: 'App' }).catch(() => {});
-    }
+    }*/
   }
 }
 </script>

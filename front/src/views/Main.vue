@@ -142,6 +142,11 @@
             </v-form>
           </v-card>
         </div>
+        <div v-if="menu == 'Online'">
+          <v-list v-for="(val, index) in this.$store.getters.onlineList" :key="index">
+            <v-list-item>{{ val.socketUserName }}</v-list-item>
+          </v-list>
+        </div>
       </v-card>
 
     </v-navigation-drawer>

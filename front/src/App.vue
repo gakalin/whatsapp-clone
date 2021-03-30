@@ -15,6 +15,7 @@ export default {
         if (result.data.success) {
             this.$store.commit('setUserInfos', result.data.data);
             this.$router.push({ name: 'App' });
+            this.$socket.client.emit('login', result.data.data);
         }
       });
   },

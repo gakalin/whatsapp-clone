@@ -16,7 +16,7 @@ const socket = io(process.env.VUE_APP_SERVICEURL, { transports: ['websocket', 'p
 Vue.config.productionTip = false
 Vue.use(toast);
 Vue.use(VueCookies);
-Vue.use(VueSocketIOExt, socket);
+Vue.use(VueSocketIOExt, socket, { store });
 
 new Vue({
   vuetify,
