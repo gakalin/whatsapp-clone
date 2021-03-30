@@ -41,6 +41,9 @@ const UserSchema = new Schema({
     },
     socketId: {
         type: String,
+    },
+    notifications: {
+        type: Array,
     }
 });
 

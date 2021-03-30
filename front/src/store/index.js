@@ -14,6 +14,7 @@ export default new Vuex.Store({
     'userFriends': [],
     'token': null,
     'onlineList': [],
+    'notifications': [],
   },
   getters: {
     avatar(state) {
@@ -32,8 +33,15 @@ export default new Vuex.Store({
     onlineList(state) {
       return state.onlineList;
     },
+    notifications(state) {
+      return state.notifications;
+    }
   },
   mutations: {
+    addNotification(state, data) {
+      state.notifications.push(data);
+      Vue.$toast.warning("You have new friend request!");
+    },
     setOnlineList(state, data) {
       state.onlineList = data;
     },
@@ -45,6 +53,9 @@ export default new Vuex.Store({
       state.userAvatar = null;
       state.userFriends = null;
       state.token = null;
+      state.socketId = null;
+      state.onlineList = [];
+      state.notifications = [];
       router.go({ name: 'Login '}).catch(() => {});
     },
     setUserInfos(state, data) {
@@ -55,9 +66,17 @@ export default new Vuex.Store({
       state.userAvatar = data.avatar;
       state.userFriends = data.friends;
       state.token = data.token;
+      state.socketId = data.socketId;
+      state.notifications = data.notifications;
     }
   },
   actions: {
+    socket_sendNotifications({ commit }, data) {
+      commit('addNotification', data);
+    },
+    addFriend({ state }, id) {
+      this._vm.$socket.client.emit("addFriend", { from: state.socketId, to: id });
+    },
     socket_onlineList({ commit }, data) {
       commit('setOnlineList', data);
     },

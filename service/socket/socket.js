@@ -17,5 +17,10 @@ module.exports = (io) => {
             await UserSchema.findOneAndUpdate({ socketId: socket.id }, { socketId: '', isOnline: false });
             onlineList(io);
         });
+
+        socket.on('addFriend', async (data) => {
+            await UserSchema.findOneAndUpdate({ socketId: data.to }, { notifications: { from: data.from, type: 'friend_request', date: Date.now() } }, { upsert: true });
+            io.to(data.to).emit("sendNotifications", { from: data.from, type: 'friend_request', date: Date.now() });
+        });
     })
 };
