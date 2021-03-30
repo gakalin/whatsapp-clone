@@ -21,6 +21,7 @@
     "jsonwebtoken": "^8.5.1",
     "md5": "^2.3.0",
     "mongoose": "^5.12.1",
+    "socket.io": "^4.0.0",
     "validator": "^13.5.2",
     "yup": "^0.32.9"
   }

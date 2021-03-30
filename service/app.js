@@ -15,6 +15,9 @@ app.use(cors({ origin: process.env.CORS_URL, credentials: true }));
 app.use(mongoSanitize());
 
 require('./routes')(app);
-app.listen(process.env.PORT, () => {
+const server = app.listen(process.env.PORT, () => {
     console.log(`service started on port ${process.env.PORT}`);
 })
+
+const io = require('socket.io')(server);
+const socket = require('./socket/socket')(io);
