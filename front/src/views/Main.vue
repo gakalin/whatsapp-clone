@@ -143,9 +143,13 @@
           </v-card>
         </div>
         <div v-if="menu == 'Online'">
-          <v-list v-for="(val, index) in this.$store.getters.onlineList" :key="index">
-            <v-list-item>{{ val.socketUserName }}</v-list-item>
-          </v-list>
+          <v-card flat outlined class="rounded-0" v-for="(val, index) in this.$store.getters.onlineList" :key="index">
+            <div class="d-flex justify-space-between px-5">
+              <span class="align-self-center"><v-icon color="green">mdi-account</v-icon> {{ val.userName }}</span>
+              <v-btn @click="addFriend(val._id)" class="justify-content-end" icon v-if="!isMyFriend(val._id)"><v-icon>mdi-account-plus</v-icon></v-btn>
+              <v-btn @click="sendMsg(val._id)" class="justify-content-end" icon v-if="isMyFriend(val._id)"><v-icon>mdi-message-text</v-icon></v-btn>
+            </div>
+          </v-card>
         </div>
       </v-card>
 
@@ -220,6 +224,15 @@ export default {
     userAvatar: null,
   }),
   methods: {
+    addFriend(id) {
+      console.log('add friend', id);
+    },
+    sendMsg(id) {
+      console.log('send msg', id);
+    },
+    isMyFriend(id) {
+      return this.$store.state.userFriends.find(u => u === id);
+    },
     logout() {
       this.$store.dispatch('logout');
     },

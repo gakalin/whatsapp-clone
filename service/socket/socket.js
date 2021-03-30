@@ -1,24 +1,21 @@
-const SocketSchema = require('../db/schemas/SocketSchema');
 const UserSchema = require('../db/schemas/UserSchema');
+
+const onlineList = async (io) => {
+    let online = await UserSchema.find({ isOnline: true }).lean();
+    io.emit('onlineList', online);
+}
 
 module.exports = (io) => {
     io.on('connection', (socket) => {
         // login
         socket.on('login', async (value) => {
-            await SocketSchema.findOneAndDelete({ socketUserId: value._id });
-            await SocketSchema.create({ 
-                socketId: socket.id,
-                socketUserId: value._id,
-                socketUserName: value.userName,
-            });
-            let sockets = await SocketSchema.find({}).lean();
-            io.emit('onlineList', sockets);
+            await UserSchema.findOneAndUpdate({ _id: value._id }, { socketId: socket.id, isOnline: true }, { upsert: true });
+            onlineList(io);
         });
         // disconnect
         socket.on('disconnect', async (data) => {
-            await SocketSchema.findOneAndDelete({ socketId: socket.id });
-            let sockets = await SocketSchema.find({}).lean();
-            io.emit('onlineList', sockets);
+            await UserSchema.findOneAndUpdate({ socketId: socket.id }, { socketId: '', isOnline: false });
+            onlineList(io);
         });
     })
 };
