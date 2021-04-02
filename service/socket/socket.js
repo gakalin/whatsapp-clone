@@ -21,7 +21,7 @@ module.exports = (io) => {
 
         socket.on('addFriend', async (data) => {
             let alreadySent = await UserSchema.find({ $and: [ { _id: data.to.userId }, { 'notifications.from': data.from._id } ] });
-            
+
             if (alreadySent && alreadySent.length > 0) {
                 return io.to(data.from.socketId).emit('sendToast', { type: 'error', message: 'You have already sent your request' });
             }

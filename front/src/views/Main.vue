@@ -243,6 +243,7 @@ export default {
   },
   methods: {
     addFriend(to) {
+      this.$store.dispatch('updateSocketId');
       this.$store.dispatch('addFriend', to);
     },
     sendMsg(id) {

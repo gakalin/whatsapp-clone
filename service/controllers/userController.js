@@ -89,7 +89,7 @@ userController.logout = (req, res) => {
             if (err || !data)
                 return res.sendStatus(204);
 
-            await UserSchema.findOneAndUpdate({ _id: data.payload }, { token: '' })
+            await UserSchema.findOneAndUpdate({ _id: data.payload }, { token: '', socketId: '', isOnline: false })
             res.clearCookie('chatAppAuth');
             return res.sendStatus(200);
         });

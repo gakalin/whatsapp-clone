@@ -42,7 +42,6 @@ export default new Vuex.Store({
       state.socketId = data;
     },
     showToast(state, data) {
-      console.log(data);
       if (data.type == 'success') {
         Vue.$toast.success(data.message);
       } else if (data.type == 'error') {
