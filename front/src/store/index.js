@@ -82,10 +82,16 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    acceptFriendRequest({ state }, id) {
+      this._vm.$socket.client.emit('acceptFriendRequest', { id, socketId: state.socketId });
+    },
+    declineFriendRequest({ state }, id) {
+      this._vm.$socket.client.emit('declineFriendRequest', { id, socketId: state.socketId });
+    },
     socket_updateSocketId({ commit }, data) {
       commit('updateSocketId', data);
     },
-    updateSocketId({ state }) {
+    updateSocketId({ state }) { 
       this._vm.$socket.client.emit('updateSocketId', state.userId);
     },
     socket_sendToast({ commit }, data) {

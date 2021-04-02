@@ -19,6 +19,7 @@ module.exports = (io) => {
             onlineList(io);
         });
 
+        // add friend
         socket.on('addFriend', async (data) => {
             let alreadySent = await UserSchema.find({ $and: [ { _id: data.to.userId }, { 'notifications.from': data.from._id } ] });
 
@@ -42,9 +43,20 @@ module.exports = (io) => {
             
         });
 
+        // socket id updating
         socket.on('updateSocketId', async (data) => {
             await UserSchema.findOneAndUpdate( { _id: data }, { socketId: socket.id });
             socket.emit('updateSocketId', socket.id);
+        });
+
+        // friend request accepting
+        socket.on('acceptFriendRequest', async (data) => {
+
+        });
+
+        // friend request declining
+        socket.on('declineFriendRequest', async (data) => {
+
         });
     });
 };

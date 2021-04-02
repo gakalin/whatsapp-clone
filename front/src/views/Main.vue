@@ -158,8 +158,8 @@
             <div class="d-flex justify-space-between" v-if="val.type == 'friend_request'">
               <span class="align-self-center"><strong>{{ val.name }}</strong> want to be your friend!</span>
               <span>
-                <v-btn icon><v-icon>mdi-account-check</v-icon></v-btn>
-                <v-btn icon><v-icon>mdi-account-cancel</v-icon></v-btn>
+                <v-btn icon @click="acceptFriendRequest(val.id)"><v-icon>mdi-account-check</v-icon></v-btn>
+                <v-btn icon @click="declineFriendRequest(val.id)"><v-icon>mdi-account-cancel</v-icon></v-btn>
               </span>
             </div>
           </v-card>
@@ -242,6 +242,12 @@ export default {
     } 
   },
   methods: {
+    acceptFriendRequest(id) {
+      this.$store.dispatch('acceptFriendRequest', id);
+    },
+    declineFriendRequest(id) {
+      this.$store.dispatch('declineFriendRequest', id);
+    },
     addFriend(to) {
       this.$store.dispatch('updateSocketId');
       this.$store.dispatch('addFriend', to);
