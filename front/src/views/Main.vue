@@ -147,8 +147,8 @@
           <v-card flat outlined class="rounded-0" v-for="(val, index) in this.$store.getters.onlineList" :key="index">
             <div class="d-flex justify-space-between px-5">
               <span class="align-self-center"><v-icon color="green">mdi-account</v-icon> {{ val.userName }}</span>
-              <v-btn @click="addFriend(val.socketId)" class="justify-content-end" icon v-if="!isMyFriend(val._id)"><v-icon>mdi-account-plus</v-icon></v-btn>
-              <v-btn @click="sendMsg(val.socketId)" class="justify-content-end" icon v-if="isMyFriend(val._id)"><v-icon>mdi-message-text</v-icon></v-btn>
+                <v-btn @click="addFriend({ userId: val._id, socketId: val.socketId })" class="justify-content-end" icon v-if="!isMyFriend(val._id)"><v-icon>mdi-account-plus</v-icon></v-btn>
+                <v-btn @click="sendMsg(val._id)" class="justify-content-end" icon v-if="isMyFriend(val._id)"><v-icon>mdi-message-text</v-icon></v-btn>
             </div>
           </v-card>
         </div>
@@ -156,7 +156,7 @@
         <div v-if="menu == 'Notifications'">
           <v-card class="pa-2 rounded-0" v-for="(val, index) in this.$store.getters.notifications" :key="index">
             <div class="d-flex justify-space-between" v-if="val.type == 'friend_request'">
-              <small class="align-self-center"><strong>{{ val.from }}</strong> wanna be your friend!</small >
+              <span class="align-self-center"><strong>{{ val.name }}</strong> want to be your friend!</span>
               <span>
                 <v-btn icon><v-icon>mdi-account-check</v-icon></v-btn>
                 <v-btn icon><v-icon>mdi-account-cancel</v-icon></v-btn>
@@ -236,9 +236,14 @@ export default {
     avatarValid: false,
     userAvatar: null,
   }),
+  computed: {
+    socketId() {
+      return this.$store.state.socketId;
+    } 
+  },
   methods: {
-    addFriend(id) {
-      this.$store.dispatch('addFriend', id);
+    addFriend(to) {
+      this.$store.dispatch('addFriend', to);
       this.$toast.success('Your friend request has been sent!');
     },
     sendMsg(id) {

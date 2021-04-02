@@ -40,10 +40,10 @@ export default new Vuex.Store({
   mutations: {
     addNotification(state, data) {
       state.notifications.push(data);
-      Vue.$toast.warning("You have new friend request!");
+      Vue.$toast.warning("You have a new friend request!");
     },
     setOnlineList(state, data) {
-      state.onlineList = data;
+      state.onlineList = data.filter(d => d._id != state.userId);
     },
     deleteUserInfos(state) {
       state.userId = null;
@@ -74,8 +74,8 @@ export default new Vuex.Store({
     socket_sendNotifications({ commit }, data) {
       commit('addNotification', data);
     },
-    addFriend({ state }, id) {
-      this._vm.$socket.client.emit("addFriend", { from: state.socketId, to: id });
+    addFriend({ state }, to) {
+      this._vm.$socket.client.emit("addFriend", { from: { _id: state.userId, name: state.userName }, to });
     },
     socket_onlineList({ commit }, data) {
       commit('setOnlineList', data);

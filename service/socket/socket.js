@@ -19,8 +19,9 @@ module.exports = (io) => {
         });
 
         socket.on('addFriend', async (data) => {
-            await UserSchema.findOneAndUpdate({ socketId: data.to }, { notifications: { from: data.from, type: 'friend_request', date: Date.now() } }, { upsert: true });
-            io.to(data.to).emit("sendNotifications", { from: data.from, type: 'friend_request', date: Date.now() });
+            let obj = { from: data.from._id, name: data.from.name, type: 'friend_request', date: Date.now() };
+            await UserSchema.findOneAndUpdate({ _id: data.to.userId }, { $push: { notifications: obj }});
+            io.to(data.to.socketId).emit('sendNotifications', obj);
         });
-    })
+    });
 };
