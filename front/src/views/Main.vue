@@ -244,7 +244,6 @@ export default {
   methods: {
     addFriend(to) {
       this.$store.dispatch('addFriend', to);
-      this.$toast.success('Your friend request has been sent!');
     },
     sendMsg(id) {
       console.log('send msg', id);
@@ -279,10 +278,12 @@ export default {
   beforeMount() {
     if (!this.$store.state.userId) {
       this.$router.push({ name: 'Login' }).catch(() => {});
+    } else {
+      this.$store.dispatch('updateSocketId');
     }
-    if (this.$store.state.userName) {
+    /*if (this.$store.state.userName) {
       this.userName = this.$store.state.userName;
-    }
+    }*/
   }
 }
 </script>

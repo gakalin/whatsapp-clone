@@ -38,9 +38,21 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    updateSocketId(state, data) {
+      state.socketId = data;
+    },
+    showToast(state, data) {
+      console.log(data);
+      if (data.type == 'success') {
+        Vue.$toast.success(data.message);
+      } else if (data.type == 'error') {
+        Vue.$toast.error(data.message);
+      } else if (data.type == 'warning') {
+        Vue.$toast.warning(data.message);
+      }
+    },
     addNotification(state, data) {
       state.notifications.push(data);
-      Vue.$toast.warning("You have a new friend request!");
     },
     setOnlineList(state, data) {
       state.onlineList = data.filter(d => d._id != state.userId);
@@ -71,11 +83,20 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    socket_updateSocketId({ commit }, data) {
+      commit('updateSocketId', data);
+    },
+    updateSocketId({ state }) {
+      this._vm.$socket.client.emit('updateSocketId', state.userId);
+    },
+    socket_sendToast({ commit }, data) {
+      commit('showToast', data);
+    },
     socket_sendNotifications({ commit }, data) {
       commit('addNotification', data);
     },
     addFriend({ state }, to) {
-      this._vm.$socket.client.emit("addFriend", { from: { _id: state.userId, name: state.userName }, to });
+      this._vm.$socket.client.emit("addFriend", { from: { _id: state.userId, name: state.userName, socketId: state.socketId }, to });
     },
     socket_onlineList({ commit }, data) {
       commit('setOnlineList', data);
