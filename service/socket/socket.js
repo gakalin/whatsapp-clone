@@ -51,12 +51,30 @@ module.exports = (io) => {
 
         // friend request accepting
         socket.on('acceptFriendRequest', async (data) => {
-
+            UserSchema.find({ 'notifications.id': data.id}, async (err, user) => {
+                if (err || !user) {
+                    return io.to(data.socketId).emit('sendToast', { type: 'error', message: 'An error occured, please try again'});
+                }
+                try {
+                    let request = user[0].notifications.find(n => n.id === data.id);
+                    
+                    if (user[0].friends.find(n => n == request.from)) {
+                        socket.emit('sendToast', { type: 'error', message: `You are already friends with ${request.name}`});
+                        await UserSchema.findOneAndUpdate({ _id: user[0]._id }, { $pull: { notifications: { id: request.id }}});
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            })
         });
 
         // friend request declining
         socket.on('declineFriendRequest', async (data) => {
-
+            UserSchema.find({ 'notifications.id': data.id}, (err, user) => {
+                if (err || !user) {
+                    return io.to(data.socketId).emit('sendToast', { type: 'error', message: 'An error occured, please try again'});
+                }
+            })
         });
     });
 };
