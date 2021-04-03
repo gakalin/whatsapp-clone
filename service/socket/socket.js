@@ -56,7 +56,7 @@ module.exports = (io) => {
                     return io.to(data.socketId).emit('sendToast', { type: 'error', message: 'An error occured, please try again'});
                 }
                 try {
-                    
+
                     if (user[0] === undefined) return;
 
                     let request = user[0].notifications.find(n => n.id === data.id);
@@ -74,16 +74,16 @@ module.exports = (io) => {
 
                     socket.emit('sendToast', { type: 'success', message: `You are friends with ${request.name} now!`});
 
-                    if (socketUserNew && socketUserNew.length > 0) {
-                        socket.emit('updateNotifications', socketUserNew[0].notifications);
+                    if (socketUserNew !== undefined) {
+                        socket.emit('updateNotifications', socketUserNew.notifications);
                     }                    
 
-                    if (requestUserNew && requestUserNew.length > 0) {
+                    if (requestUserNew !== undefined) {
 
-                        if (requestUserNew[0].isOnline == true && requestUserNew[0].socketId) {
-                            io.to(requestUserNew[0].socketId).emit('sendToast', { type: 'success', message: `You are friends with ${user[0].userName} now`});
+                        if (requestUserNew.isOnline == true && requestUserNew.socketId) {
+                            io.to(requestUserNew.socketId).emit('sendToast', { type: 'success', message: `You are friends with ${socketUserNew.userName} now`});
 
-                            io.to(requestUserNew[0].socketId).emit('updateNotifications', requestUserNew[0].notifications);
+                            io.to(requestUserNew.socketId).emit('updateNotifications', requestUserNew.notifications);
                         }
 
                     }                    

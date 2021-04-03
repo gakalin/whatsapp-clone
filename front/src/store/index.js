@@ -38,6 +38,9 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    updateNotifications(state, data) {
+      state.notifications = data;
+    },
     updateSocketId(state, data) {
       state.socketId = data;
     },
@@ -82,6 +85,10 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    socket_updateNotifications({ commit }, data) {
+      console.log(data);
+      commit('updateNotifications', data);
+    },
     acceptFriendRequest({ state }, id) {
       this._vm.$socket.client.emit('acceptFriendRequest', { id, socketId: state.socketId });
     },
