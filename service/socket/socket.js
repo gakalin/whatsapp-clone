@@ -63,7 +63,10 @@ module.exports = (io) => {
                     
                     if (user[0].friends.find(n => n == request.from)) {
                         socket.emit('sendToast', { type: 'error', message: `You are already friends with ${request.name}`});
-                        return await UserSchema.findOneAndUpdate({ _id: user[0]._id }, { $pull: { notifications: { id: request.id }}});
+
+                        let updatedUser = await UserSchema.findOneAndUpdate({ _id: user[0]._id }, { $pull: { notifications: { id: request.id }}}, { new: true });
+                        
+                        return socket.emit('updateNotifications', updatedUser.notifications);
                     }
 
                     let requestUserNew = await UserSchema.findOneAndUpdate({ _id: request.from }, { $push: { friends: user[0]._id }}, { new: true });
@@ -76,6 +79,7 @@ module.exports = (io) => {
 
                     if (socketUserNew !== undefined) {
                         socket.emit('updateNotifications', socketUserNew.notifications);
+                        socket.emit('updateFriends', socketUserNew.friends);
                     }                    
 
                     if (requestUserNew !== undefined) {
@@ -84,6 +88,7 @@ module.exports = (io) => {
                             io.to(requestUserNew.socketId).emit('sendToast', { type: 'success', message: `You are friends with ${socketUserNew.userName} now`});
 
                             io.to(requestUserNew.socketId).emit('updateNotifications', requestUserNew.notifications);
+                            io.to(requestUserNew.socketId).emit('updateFriends', requestUserNew.friends);
                         }
 
                     }                    

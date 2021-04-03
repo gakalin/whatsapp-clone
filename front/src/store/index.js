@@ -38,6 +38,9 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    updateFriends(state, data) {
+      state.userFriends = data;
+    },
     updateNotifications(state, data) {
       state.notifications = data;
     },
@@ -85,8 +88,10 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    socket_updateFriends({ commit }, data) {
+      commit ('updateFriends', data);
+    },
     socket_updateNotifications({ commit }, data) {
-      console.log(data);
       commit('updateNotifications', data);
     },
     acceptFriendRequest({ state }, id) {
