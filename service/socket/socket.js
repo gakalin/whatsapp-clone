@@ -65,13 +65,13 @@ module.exports = (io) => {
                         socket.emit('sendToast', { type: 'error', message: `You are already friends with ${request.name}`});
 
                         let updatedUser = await UserSchema.findOneAndUpdate({ _id: user[0]._id }, { $pull: { notifications: { id: request.id }}}, { new: true });
-                        
+
                         return socket.emit('updateNotifications', updatedUser.notifications);
                     }
 
                     let requestUserNew = await UserSchema.findOneAndUpdate({ _id: request.from }, { $push: { friends: user[0]._id }}, { new: true });
 
-                    await UserSchema.findOneAndUpdate({ _id: user[0]._id }, { $push: { friends: request.from }});
+                    await UserSchema.findOneAndUpdate({ _id: user[0]._id }, { $push: { friends: requestUserNew._id }});
 
                     let socketUserNew = await UserSchema.findOneAndUpdate({ _id: user[0]._id }, { $pull: { notifications: { id: request.id }}}, { new: true });
 
@@ -91,8 +91,7 @@ module.exports = (io) => {
                             io.to(requestUserNew.socketId).emit('updateFriends', requestUserNew.friends);
                         }
 
-                    }                    
-
+                    }
 
                 } catch (error) {
                     console.error(error);
@@ -102,9 +101,20 @@ module.exports = (io) => {
 
         // friend request declining
         socket.on('declineFriendRequest', async (data) => {
-            UserSchema.find({ 'notifications.id': data.id}, (err, user) => {
+            UserSchema.find({ 'notifications.id': data.id}, async (err, user) => {
                 if (err || !user) {
                     return io.to(data.socketId).emit('sendToast', { type: 'error', message: 'An error occured, please try again'});
+                }
+                try {
+
+                    let socketUserNew = await UserSchema.findOneAndUpdate({ _id: user[0]._id }, { $pull: { notifications: { id: data.id }}}, { new: true });
+
+                    if (socketUserNew !== undefined) {
+                        socket.emit('updateNotifications', socketUserNew.notifications);
+                    }
+
+                } catch (error) {
+                    console.error(error);
                 }
             })
         });
