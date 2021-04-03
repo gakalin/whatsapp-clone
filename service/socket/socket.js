@@ -56,12 +56,39 @@ module.exports = (io) => {
                     return io.to(data.socketId).emit('sendToast', { type: 'error', message: 'An error occured, please try again'});
                 }
                 try {
+                    
+                    if (user[0] === undefined) return;
+
                     let request = user[0].notifications.find(n => n.id === data.id);
                     
                     if (user[0].friends.find(n => n == request.from)) {
                         socket.emit('sendToast', { type: 'error', message: `You are already friends with ${request.name}`});
-                        await UserSchema.findOneAndUpdate({ _id: user[0]._id }, { $pull: { notifications: { id: request.id }}});
+                        return await UserSchema.findOneAndUpdate({ _id: user[0]._id }, { $pull: { notifications: { id: request.id }}});
                     }
+
+                    let requestUserNew = await UserSchema.findOneAndUpdate({ _id: request.from }, { $push: { friends: user[0]._id }}, { new: true });
+
+                    await UserSchema.findOneAndUpdate({ _id: user[0]._id }, { $push: { friends: request.from }});
+
+                    let socketUserNew = await UserSchema.findOneAndUpdate({ _id: user[0]._id }, { $pull: { notifications: { id: request.id }}}, { new: true });
+
+                    socket.emit('sendToast', { type: 'success', message: `You are friends with ${request.name} now!`});
+
+                    if (socketUserNew && socketUserNew.length > 0) {
+                        socket.emit('updateNotifications', socketUserNew[0].notifications);
+                    }                    
+
+                    if (requestUserNew && requestUserNew.length > 0) {
+
+                        if (requestUserNew[0].isOnline == true && requestUserNew[0].socketId) {
+                            io.to(requestUserNew[0].socketId).emit('sendToast', { type: 'success', message: `You are friends with ${user[0].userName} now`});
+
+                            io.to(requestUserNew[0].socketId).emit('updateNotifications', requestUserNew[0].notifications);
+                        }
+
+                    }                    
+
+
                 } catch (error) {
                     console.error(error);
                 }
