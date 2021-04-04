@@ -44,7 +44,7 @@ const UserSchema = new Schema({
     },
     notifications: {
         type: Array,
-    }
+    },
 });
 
 module.exports = mongoose.model('user', UserSchema);

@@ -275,6 +275,9 @@ export default {
       if (type === 'Profile' && this.$store.state.userName) {
         this.userName = this.$store.state.userName;
       }
+      if (type === 'Notifications') {
+        this.$store.dispatch('readAllNotifications');
+      }
       this.drawer = !this.drawer;
       this.menu = type;
     },

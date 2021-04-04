@@ -91,6 +91,9 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    readAllNotifications() {
+      this._vm.$socket.client.emit('readAllNotifications');
+    },
     socket_updateFriends({ commit }, data) {
       commit ('updateFriends', data);
     },

@@ -33,7 +33,7 @@ module.exports = (io) => {
                 return io.to(data.from.socketId).emit('sendToast', { type: 'error', message: 'You are already a friend.'})
             }
             
-            let obj = { id: uuidv4(), from: data.from._id, name: data.from.name, type: 'friend_request', date: Date.now() };
+            let obj = { read: false, id: uuidv4(), from: data.from._id, name: data.from.name, type: 'friend_request', date: Date.now() };
 
             await UserSchema.findOneAndUpdate({ _id: data.to.userId }, { $push: { notifications: obj }});
             io.to(data.to.socketId).emit('sendNotifications', obj);
@@ -117,6 +117,24 @@ module.exports = (io) => {
                     console.error(error);
                 }
             })
+        });
+
+        // read all notifications
+        socket.on('readAllNotifications', () => {
+            try {
+                UserSchema.find({ socketId: socket.id }, async (err, user) => {
+                    if (err || !user) return;
+
+                    let updatedUser = await UserSchema.findOneAndUpdate({ socketId: socket.id }, { $set: { 'notifications.$[].read': true } }, { new: true });
+
+                    console.log(updatedUser.notifications);
+                    if (updatedUser != null) {
+                        socket.emit('updateNotifications', updatedUser.notifications);
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+            }
         });
     });
 };
