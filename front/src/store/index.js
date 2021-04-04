@@ -17,6 +17,9 @@ export default new Vuex.Store({
     'notifications': [],
   },
   getters: {
+    notificationCount(state) {
+      return state.notifications.length > 0 ? state.notifications.filter(e => e.read == false).length : 0;
+    },
     avatar(state) {
       let avatar = require('../assets/blank_avatar.jpg');
       if (state.userAvatar) {

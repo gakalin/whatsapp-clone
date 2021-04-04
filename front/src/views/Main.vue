@@ -8,7 +8,7 @@
         </v-avatar>
 
         <div>
-          <v-btn @click="showMenu('Notifications')" icon class="mr-4"><v-icon>mdi-message-text</v-icon></v-btn>
+          <v-btn @click="showMenu('Notifications')" icon class="mr-4" :class="{ notificationGreen : this.$store.getters.notificationCount > 0 }"><v-icon>mdi-message-text</v-icon><small class="notificationBtn" v-if="this.$store.getters.notificationCount > 0">{{ this.$store.getters.notificationCount }}</small></v-btn>
           <v-menu offset-y>
             <template v-slot:activator="{ on, attrs }">
               <v-btn icon v-bind="attrs" v-on="on"><v-icon>mdi-dots-vertical</v-icon></v-btn>
@@ -173,6 +173,16 @@
 
 
 <style scoped>
+.notificationGreen {
+  color: #0cab2c!important;
+}
+.notificationBtn {
+  position: absolute;
+  left: 27px;
+  top: -4px;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
 .msgMain .v-card div span.date {
   font-size: 0.75rem;
   color: #9b9b9b;
