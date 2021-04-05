@@ -69,7 +69,22 @@ export default new Vuex.Store({
         state.friendsFiltered = state.friends;
     },
     updateFriends(state, data) {
+      state.friends = [];
+      state.friendsFiltered = [];
       state.userFriends = data;
+      var arr = [];
+
+      state.userFriends.forEach(element => {
+        Vue.axios({ url: `/user/getUser?id=${element}`, method: 'get'})
+        .then((result) => {
+          if (result.data.success) {
+            arr.push({ _id: result.data.user._id, userName: result.data.user.userName, isOnline: result.data.user.isOnline, socketId: result.data.user.socketId });
+          }
+        });      
+      });
+
+      state.friends = arr;
+      state.friendsFiltered = state.friends;
     },
     updateNotifications(state, data) {
       state.notifications = data;
