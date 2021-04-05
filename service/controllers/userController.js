@@ -12,6 +12,26 @@ const md5 = require('md5');
 const userController = {};
 const fs = require('fs');
 
+/* Get friend information */
+userController.getUser = async (req, res) => {
+    try {
+        if (!req.query.id || !res.locals.userId)
+            return res.sendStatus(400);
+
+        UserSchema.find({ _id: req.query.id }, (err, user) => {
+            if (err || !user) return;
+
+            return res.status(200).json({
+                success: true,
+                user: user[0],
+            });
+        });
+
+    } catch (error) {
+        return res.sendStatus(400);
+    }
+};
+
 /* Profile Data Update */
 userController.profile = async (req, res) => {
     try {

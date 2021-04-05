@@ -17,6 +17,20 @@ export default new Vuex.Store({
     'notifications': [],
   },
   getters: {
+    friends(state) {
+      if (state.userFriends.length > 0) {
+        var arr = [];
+        state.userFriends.forEach(element => {
+          Vue.axios({ url: `/user/getUser?id=${element}`, method: 'get'})
+          .then((result) => {
+            if (result.data.success) {
+              arr.push({ _id: result.data.user._id, userName: result.data.user.userName, isOnline: result.data.user.isOnline, socketId: result.data.user.socketId });
+            }
+          });      
+        });
+        return arr;
+      }
+    },
     notificationCount(state) {
       return state.notifications.length > 0 ? state.notifications.filter(e => e.read == false).length : 0;
     },
@@ -91,8 +105,9 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    readAllNotifications() {
-      this._vm.$socket.client.emit('readAllNotifications');
+    readAllNotifications({ getters }) {
+      if (getters.notificationCount > 0)
+        this._vm.$socket.client.emit('readAllNotifications');
     },
     socket_updateFriends({ commit }, data) {
       commit ('updateFriends', data);

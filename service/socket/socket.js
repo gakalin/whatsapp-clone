@@ -127,7 +127,6 @@ module.exports = (io) => {
 
                     let updatedUser = await UserSchema.findOneAndUpdate({ socketId: socket.id }, { $set: { 'notifications.$[].read': true } }, { new: true });
 
-                    console.log(updatedUser.notifications);
                     if (updatedUser != null) {
                         socket.emit('updateNotifications', updatedUser.notifications);
                     }
@@ -136,5 +135,6 @@ module.exports = (io) => {
                 console.error(error);
             }
         });
+        
     });
 };

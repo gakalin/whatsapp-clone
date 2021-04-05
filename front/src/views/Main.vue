@@ -164,6 +164,19 @@
             </div>
           </v-card>
         </div>
+
+        <div v-if="menu == 'Friends'">
+          <v-card class="pa-2 rounded-0" v-for="(val, index) in friends" :key="index">
+            <div class="d-flex justify-space-between">
+              <span class="align-self-center"><v-icon :class="{ notificationGreen: val.isOnline == true }">mdi-account</v-icon> {{ val.userName }}</span>
+              <span>
+                <v-btn icon @click="sendMsg(val._id)"><v-icon>mdi-message-text</v-icon></v-btn>
+                <v-btn icon @click="removeFriend(val._id)"><v-icon>mdi-account-cancel</v-icon></v-btn>
+              </span>
+            </div>
+          </v-card>
+        </div>  
+
       </v-card>
 
     </v-navigation-drawer>
@@ -245,13 +258,17 @@ export default {
     ],
     avatarValid: false,
     userAvatar: null,
+    friends: [],
   }),
   computed: {
     socketId() {
       return this.$store.state.socketId;
-    } 
+    },
   },
   methods: {
+    removeFriend(id) {
+      console.log(id);
+    },
     acceptFriendRequest(id) {
       this.$store.dispatch('acceptFriendRequest', id);
     },
@@ -277,6 +294,9 @@ export default {
       }
       if (type === 'Notifications') {
         this.$store.dispatch('readAllNotifications');
+      }
+      if (type === 'Friends') {
+        this.friends = this.$store.getters.friends;
       }
       this.drawer = !this.drawer;
       this.menu = type;

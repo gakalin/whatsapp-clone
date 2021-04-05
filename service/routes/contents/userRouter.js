@@ -11,5 +11,6 @@ module.exports = (app) => {
     userRouter.post('/discordAuth', userController.discordAuth);
     userRouter.put('/logout', userController.logout);
     userRouter.put('/profile', auth, userController.profile);
+    userRouter.get('/getUser', auth, userController.getUser);
     app.use('/user', userRouter);
 }
