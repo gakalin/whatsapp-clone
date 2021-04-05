@@ -168,13 +168,13 @@
         <div v-if="menu == 'Friends'">
 
           <v-card elevation="0" class="pa-2 d-flex justify-space-between rounded-0" >
-            <v-btn @click="this.$store.commit.filterFriends(1)" text small color="green">
+            <v-btn @click="filterFriends(1)" text small color="green">
               <v-icon>mdi-account</v-icon> Online
             </v-btn>
-            <v-btn @click="this.$store.commit.filterFriends(2)" text small color="grey">
+            <v-btn @click="filterFriends(2)" text small color="grey">
               <v-icon>mdi-account</v-icon> Offline
             </v-btn>
-            <v-btn @click="this.$store.commit.filterFriends(3)" text small color="grey darken-3">
+            <v-btn @click="filterFriends(3)" text small color="grey darken-3">
               <v-icon>mdi-account</v-icon> All
             </v-btn>
           </v-card>
@@ -281,6 +281,9 @@ export default {
     userAvatar: null,
   }),
   methods: {
+    filterFriends(v) {
+      this.$store.dispatch('filterFriends', v);
+    },
     removeFriend(id) {
       this.$store.dispatch('removeFriend', id);
     },

@@ -133,6 +133,9 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    filterFriends({ commit }, v) {
+      commit('filterFriends', v);
+    },
     removeFriend({ state }, id) {
       this._vm.$socket.client.emit('removeFriend', id);
     },
