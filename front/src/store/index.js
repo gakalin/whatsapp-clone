@@ -15,22 +15,10 @@ export default new Vuex.Store({
     'token': null,
     'onlineList': [],
     'notifications': [],
+    'friends': [],
+    'friendsFiltered': [],
   },
   getters: {
-    friends(state) {
-      if (state.userFriends.length > 0) {
-        var arr = [];
-        state.userFriends.forEach(element => {
-          Vue.axios({ url: `/user/getUser?id=${element}`, method: 'get'})
-          .then((result) => {
-            if (result.data.success) {
-              arr.push({ _id: result.data.user._id, userName: result.data.user.userName, isOnline: result.data.user.isOnline, socketId: result.data.user.socketId });
-            }
-          });      
-        });
-        return arr;
-      }
-    },
     notificationCount(state) {
       return state.notifications.length > 0 ? state.notifications.filter(e => e.read == false).length : 0;
     },
@@ -55,6 +43,31 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    getFriends(state) {
+      if (state.userFriends.length > 0) {
+        var arr = [];
+
+        state.userFriends.forEach(element => {
+          Vue.axios({ url: `/user/getUser?id=${element}`, method: 'get'})
+          .then((result) => {
+            if (result.data.success) {
+              arr.push({ _id: result.data.user._id, userName: result.data.user.userName, isOnline: result.data.user.isOnline, socketId: result.data.user.socketId });
+            }
+          });      
+        });
+
+        state.friends = arr;
+        state.friendsFiltered = state.friends;
+      }
+    },
+    filterFriends(state, v) {
+      if (v == 1)
+        state.friendsFiltered = state.friends.filter(f => f.isOnline == true);
+      else if (v == 2) 
+        state.friendsFiltered = state.friends.filter(f => f.isOnline == false);
+      else if (v == 3)
+        state.friendsFiltered = state.friends;
+    },
     updateFriends(state, data) {
       state.userFriends = data;
     },
@@ -105,12 +118,15 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    removeFriend({ state }, id) {
+      this._vm.$socket.client.emit('removeFriend', id);
+    },
     readAllNotifications({ getters }) {
       if (getters.notificationCount > 0)
         this._vm.$socket.client.emit('readAllNotifications');
     },
     socket_updateFriends({ commit }, data) {
-      commit ('updateFriends', data);
+      commit('updateFriends', data);
     },
     socket_updateNotifications({ commit }, data) {
       commit('updateNotifications', data);

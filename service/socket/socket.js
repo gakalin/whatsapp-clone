@@ -1,5 +1,6 @@
 const UserSchema = require('../db/schemas/UserSchema');
 const { v4: uuidv4 } = require('uuid');
+const mongoose = require('mongoose');
 
 const onlineList = async (io) => {
     let online = await UserSchema.find({ isOnline: true }).lean();
@@ -135,6 +136,29 @@ module.exports = (io) => {
                 console.error(error);
             }
         });
+
+        // remove friend
+        socket.on('removeFriend', (id) => {
+            try {
+                UserSchema.find({ socketId: socket.id }, async (err, user) => {
+                    if (err || !user) return;
+
+                    var updatedUser = await UserSchema.findOneAndUpdate({ _id: user[0]._id }, { $pull: { friends: mongoose.Types.ObjectId(id) }}, { new: true });
+
+                    socket.emit('updateFriends', updatedUser.friends);
+
+                    if (updatedUser != null) {
+                        
+                        let updatedFriend = await UserSchema.findOneAndUpdate({ _id: id }, { $pull: { friends: user[0]._id }}, { new: true });
+
+                        io.to(updatedFriend.socketId).emit('updateFriends', updatedFriend.friends);
+                    }                   
+
+                });
+            } catch (error) {
+                console.log(error);
+            }
+        })
         
     });
 };

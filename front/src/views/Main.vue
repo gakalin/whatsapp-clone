@@ -168,18 +168,18 @@
         <div v-if="menu == 'Friends'">
 
           <v-card elevation="0" class="pa-2 d-flex justify-space-between rounded-0" >
-            <v-btn @click="filterFriends(1)" text small color="green">
+            <v-btn @click="this.$store.commit.filterFriends(1)" text small color="green">
               <v-icon>mdi-account</v-icon> Online
             </v-btn>
-            <v-btn @click="filterFriends(2)" text small color="grey">
+            <v-btn @click="this.$store.commit.filterFriends(2)" text small color="grey">
               <v-icon>mdi-account</v-icon> Offline
             </v-btn>
-            <v-btn @click="filterFriends(3)" text small color="grey darken-3">
+            <v-btn @click="this.$store.commit.filterFriends(3)" text small color="grey darken-3">
               <v-icon>mdi-account</v-icon> All
             </v-btn>
           </v-card>
 
-          <v-card flat class="py-1 rounded-0" v-for="(val, index) in friendsFiltered" :key="index">
+          <v-card flat class="py-1 rounded-0" v-for="(val, index) in this.$store.state.friendsFiltered" :key="index">
             <div class="friend d-flex justify-space-between">
               <span class="friendListText align-self-center"><v-icon :class="{ notificationGreen: val.isOnline == true }">mdi-account</v-icon> {{ val.userName }}</span>
               <span>
@@ -279,20 +279,10 @@ export default {
     ],
     avatarValid: false,
     userAvatar: null,
-    friends: [],
-    friendsFiltered: [],
   }),
   methods: {
-    filterFriends(v) {
-      if (v == 1)
-        this.friendsFiltered = this.friends.filter(f => f.isOnline == true);
-      else if (v == 2) 
-        this.friendsFiltered = this.friends.filter(f => f.isOnline == false);
-      else if (v == 3)
-        this.friendsFiltered = this.friends;
-    },
     removeFriend(id) {
-      console.log(id);
+      this.$store.dispatch('removeFriend', id);
     },
     acceptFriendRequest(id) {
       this.$store.dispatch('acceptFriendRequest', id);
@@ -321,8 +311,7 @@ export default {
         this.$store.dispatch('readAllNotifications');
       }
       if (type === 'Friends') {
-        this.friends = this.$store.getters.friends;
-        this.friendsFiltered = this.friends;
+        this.$store.commit('getFriends');
       }
       this.drawer = !this.drawer;
       this.menu = type;
