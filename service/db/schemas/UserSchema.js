@@ -45,6 +45,11 @@ const UserSchema = new Schema({
     notifications: {
         type: Array,
     },
+    messages: [
+        {
+            userId: mongoose.ObjectId,
+        }
+    ]
 });
 
 module.exports = mongoose.model('user', UserSchema);

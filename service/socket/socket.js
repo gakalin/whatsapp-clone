@@ -156,9 +156,26 @@ module.exports = (io) => {
 
                 });
             } catch (error) {
-                console.log(error);
+                console.error(error);
             }
         })
+
+        // create message
+        socket.on('createMessage', (id) => {
+            try {
+                UserSchema.find({ socketId: socket.id }, async (err, user) => {
+                    if (err || !user) return;
+
+                    let updatedUser = await UserSchema.findOneAndUpdate({ socketId: socket.id }, { $push: { messages: {userId: mongoose.Types.ObjectId(id) }}}, { new: true });
+
+                    if (updatedUser != null) {
+                        socket.emit('updateMessages', updatedUser.messages);
+                    }
+                })
+            } catch (error) {
+                console.error(error);
+            }
+        });
         
     });
 };

@@ -17,8 +17,14 @@ export default new Vuex.Store({
     'notifications': [],
     'friends': [],
     'friendsFiltered': [],
+    'userMessages': [],
+    'messages': [],
+    'message': null,
   },
   getters: {
+    messages(state) {
+      return state.messages;
+    },
     notificationCount(state) {
       return state.notifications.length > 0 ? state.notifications.filter(e => e.read == false).length : 0;
     },
@@ -43,6 +49,36 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    getMessages(state) {
+      var arr = [];
+
+      state.userMessages.forEach(element => {
+        Vue.axios({ url: `/user/getUser?id=${element.userId}`, method: 'get'})
+        .then((result) => {
+          if (result.data.success) {
+            arr.push({ _id: result.data.user._id, userName: result.data.user.userName, avatar: result.data.user.avatar, socketId: result.data.user.socketId });
+          }
+        });      
+      });
+
+      state.messages = arr;
+    },
+    updateMessages(state, data) {
+      state.userMessages = data;
+
+      var arr = [];
+
+      state.userMessage.forEach(element => {
+        Vue.axios({ url: `/user/getUser?id=${element}`, method: 'get'})
+        .then((result) => {
+          if (result.data.success) {
+            arr.push({ _id: result.data.user._id, userName: result.data.user.userName, avatar: result.data.user.avatar, socketId: result.data.user.socketId });
+          }
+        });      
+      });
+
+      state.messages = arr;
+    },
     getFriends(state) {
       if (state.userFriends.length > 0) {
         var arr = [];
@@ -118,6 +154,11 @@ export default new Vuex.Store({
       state.socketId = null;
       state.onlineList = [];
       state.notifications = [];
+      state.friends = [];
+      state.friendsFiltered = [];
+      state.userMessages = [];
+      state.messages = [];
+      state.message = null;
       router.go({ name: 'Login '}).catch(() => {});
     },
     setUserInfos(state, data) {
@@ -130,9 +171,18 @@ export default new Vuex.Store({
       state.token = data.token;
       state.socketId = data.socketId;
       state.notifications = data.notifications;
+      state.userMessages = data.messages;
     }
   },
   actions: {
+    socket_updateMessages({ commit }, data) {
+      commit('updateMessages', data);
+    },
+    sendMessage({ state }, id) {
+      if (!state.messages.find(m => m.userId == id)) {
+        this._vm.$socket.client.emit('createMessage', id);
+      }
+    },
     filterFriends({ commit }, v) {
       commit('filterFriends', v);
     },
