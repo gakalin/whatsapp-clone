@@ -167,10 +167,7 @@ module.exports = (io) => {
                     if (err || !user) return;
 
                     let updatedUser = await UserSchema.findOneAndUpdate({ socketId: socket.id }, { $push: { messages: {userId: mongoose.Types.ObjectId(id) }}}, { new: true });
-                    console.log(updatedUser.messages);
-                    if (updatedUser != null) {
-                        socket.emit('updateMessages', updatedUser.messages);
-                    }
+                    socket.emit('updateMessages', updatedUser.messages);
                 })
             } catch (error) {
                 console.error(error);

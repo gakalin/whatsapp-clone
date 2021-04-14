@@ -72,7 +72,7 @@ export default new Vuex.Store({
       var arr = [];
 
       state.userMessages.forEach(element => {
-        Vue.axios({ url: `/user/getUser?id=${element}`, method: 'get'})
+        Vue.axios({ url: `/user/getUser?id=${element.userId}`, method: 'get'})
         .then((result) => {
           if (result.data.success) {
             arr.push({ _id: result.data.user._id, userName: result.data.user.userName, avatar: result.data.user.avatar, socketId: result.data.user.socketId });
@@ -184,6 +184,9 @@ export default new Vuex.Store({
     userMessage({ state, commit }, id) {
       if (!state.userMessages.find(m => m.userId == id)) {
         this._vm.$socket.client.emit('createMessage', id);
+        setTimeout(() => {
+          commit('selectMessage', id)
+        }, 500);
       } else {
         commit('selectMessage', id);
       }
