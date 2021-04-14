@@ -32,7 +32,7 @@
 
       <v-card flat class="rounded-0 msgPanel overflow-y-auto">
 
-        <v-card v-for="(val, index) in this.$store.state.messages" :key="index" color="grey lighten-3" flat class="rounded-0 pa-3 d-flex" style="border-bottom: 1px solid #e2e0e0;">
+        <v-card :class="{ activeMessage : activeMsg === val._id}" @click.prevent="message(val)" v-for="(val, index) in this.$store.state.messages" :key="index" flat class="rounded-0 pa-3 d-flex" style="border-bottom: 1px solid #e2e0e0;">
           <v-avatar size="47" class="rounded-circle">
             <img :src="getAvatar(val.avatar)">
           </v-avatar>
@@ -54,14 +54,17 @@
 
     </v-card>
 
-    <v-card flat height="100vh" width="100%" class="msgSide rounded-0">
+    <v-card justify="center" align="center" width="100%" color="#F6F6F6" class="rounded-0" v-if="!this.$store.state.message">
+    </v-card>
+
+    <v-card flat height="100vh" width="100%" class="msgSide rounded-0" v-if="this.$store.state.message">
 
       <v-card flat width="100%" height="60" color="#EDEDED" class="px-4 py-3 d-flex justify-space-between rounded-0" style="border-bottom: 1px solid #d3d3d3; border-left: 1px solid #d3d3d3;">
         <div class="d-flex">
           <v-avatar size="38" class="rounded-circle">
-            <img src="../assets/blank_avatar.jpg">
+            <img :src="getAvatar(this.$store.state.message.avatar)">
           </v-avatar>
-          <h4 class="align-self-center pl-3">Gökberk Akalın</h4>
+          <h4 class="align-self-center pl-3">{{ this.$store.state.message.userName }}</h4>
         </div>
         <div>
           <v-btn icon class="mr-4"><v-icon>mdi-magnify</v-icon></v-btn>
@@ -136,7 +139,7 @@
             <div class="d-flex justify-space-between px-5">
               <span class="align-self-center"><v-icon color="green">mdi-account</v-icon> {{ val.userName }}</span>
                 <v-btn @click="addFriend({ userId: val._id, socketId: val.socketId })" class="justify-content-end" icon v-if="!isMyFriend(val._id)"><v-icon>mdi-account-plus</v-icon></v-btn>
-                <v-btn @click="sendMsg(val._id)" class="justify-content-end" icon v-if="isMyFriend(val._id)"><v-icon>mdi-message-text</v-icon></v-btn>
+                <v-btn @click="userMsg(val._id)" class="justify-content-end" icon v-if="isMyFriend(val._id)"><v-icon>mdi-message-text</v-icon></v-btn>
             </div>
           </v-card>
         </div>
@@ -171,7 +174,7 @@
             <div class="friend d-flex justify-space-between">
               <span class="friendListText align-self-center"><v-icon :class="{ notificationGreen: val.isOnline == true }">mdi-account</v-icon> {{ val.userName }}</span>
               <span>
-                <v-btn icon @click="sendMsg(val._id)"><v-icon>mdi-message-text</v-icon></v-btn>
+                <v-btn icon @click="userMsg(val._id)"><v-icon>mdi-message-text</v-icon></v-btn>
                 <v-btn icon @click="removeFriend(val._id)"><v-icon>mdi-account-cancel</v-icon></v-btn>
               </span>
             </div>
@@ -188,6 +191,9 @@
 
 
 <style scoped>
+.activeMessage {
+  background-color: #e3e3e3!important;
+}
 .friend {
   border-bottom: 1px solid #c5c9c6!important;
   padding: 2px;
@@ -267,8 +273,13 @@ export default {
     ],
     avatarValid: false,
     userAvatar: null,
+    activeMsg: null,
   }),
   methods: {
+    message(friend) {
+      this.$store.commit('selectMessage', friend._id);
+      this.activeMsg = friend._id;
+    },
     getAvatar(av) {
       let avatar = require('../assets/blank_avatar.jpg');
       if (av) {
@@ -295,8 +306,8 @@ export default {
       this.$store.dispatch('updateSocketId');
       this.$store.dispatch('addFriend', to);
     },
-    sendMsg(id) {
-      this.$store.dispatch('sendMessage', id);
+    userMsg(id) {
+      this.$store.dispatch('userMessage', id);
     },
     isMyFriend(id) {
       return this.$store.state.userFriends.find(u => u === id);

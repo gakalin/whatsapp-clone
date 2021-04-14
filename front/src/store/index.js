@@ -49,6 +49,9 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    selectMessage(state, id) {
+      state.message = state.messages.find(m => m._id == id);
+    },
     getMessages(state) {
       var arr = [];
 
@@ -68,7 +71,7 @@ export default new Vuex.Store({
 
       var arr = [];
 
-      state.userMessage.forEach(element => {
+      state.userMessages.forEach(element => {
         Vue.axios({ url: `/user/getUser?id=${element}`, method: 'get'})
         .then((result) => {
           if (result.data.success) {
@@ -178,9 +181,11 @@ export default new Vuex.Store({
     socket_updateMessages({ commit }, data) {
       commit('updateMessages', data);
     },
-    sendMessage({ state }, id) {
-      if (!state.messages.find(m => m.userId == id)) {
+    userMessage({ state, commit }, id) {
+      if (!state.userMessages.find(m => m.userId == id)) {
         this._vm.$socket.client.emit('createMessage', id);
+      } else {
+        commit('selectMessage', id);
       }
     },
     filterFriends({ commit }, v) {
