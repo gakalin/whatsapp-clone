@@ -20,6 +20,7 @@ export default new Vuex.Store({
     'userMessages': [],
     'messages': [],
     'message': null,
+    'conversation': [],
   },
   getters: {
     messages(state) {
@@ -49,6 +50,9 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    pushConversation(state, data) {
+      state.conversation.push(data);
+    },
     selectMessage(state, id) {
       state.message = state.messages.find(m => m._id == id);
     },
@@ -162,6 +166,7 @@ export default new Vuex.Store({
       state.userMessages = [];
       state.messages = [];
       state.message = null;
+      state.conversation = [];
       router.go({ name: 'Login '}).catch(() => {});
     },
     setUserInfos(state, data) {
@@ -178,6 +183,26 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    socket_receiveMessage({ commit }, data) {
+      commit('pushConversation', data);
+    },
+    sendMsg({ state }, arr) {
+      let obj = {
+        users: [
+          state.userId,
+          arr[0],
+        ],
+        messages: [
+          {
+            userId: arr[0],
+            read: false,
+            date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString('tr-TR'),
+            content: arr[1],
+          }
+        ]
+      }
+      this._vm.$socket.client.emit('sendMessage', obj);
+    },
     socket_updateMessages({ commit }, data) {
       commit('updateMessages', data);
     },
@@ -185,10 +210,12 @@ export default new Vuex.Store({
       if (!state.userMessages.find(m => m.userId == id)) {
         this._vm.$socket.client.emit('createMessage', id);
         setTimeout(() => {
-          commit('selectMessage', id)
+          commit('selectMessage', id);
+          this._vm.$socket.client.emit('getConversation', [ state.userId, id ] );
         }, 500);
       } else {
         commit('selectMessage', id);
+        this._vm.$socket.client.emit('getConversation', [ state.userId, id ] );
       }
     },
     filterFriends({ commit }, v) {

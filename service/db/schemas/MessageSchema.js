@@ -7,7 +7,7 @@ const MessageSchema = new Schema({
     },
     messages: [
         {
-            userId: mongoose.ObjectId,
+            userId: String,
             read: Boolean,
             date: Date,
             content: String,

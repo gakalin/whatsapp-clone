@@ -99,7 +99,7 @@
       </v-card>
 
       <v-footer color="#EDEDED" padless absolute fixed width="100%" class="rounded-0 ma-0 pa-0" style="border-top: 1px solid #d3d3d3;">
-        <v-text-field clearable dense flat solo hide-details class="pa-3 rounded-xl ma-0 pa-0" label="Type a message"></v-text-field>
+        <v-text-field v-model="msgContent" v-on:keyup.enter="sendMsg()" clearable dense flat solo hide-details class="pa-3 rounded-xl ma-0 pa-0" label="Type a message"></v-text-field>
       </v-footer>
 
     </v-card>
@@ -274,8 +274,15 @@ export default {
     avatarValid: false,
     userAvatar: null,
     activeMsg: null,
+    msgContent: null,
   }),
   methods: {
+    sendMsg() {
+      if (!this.activeMsg) return false;
+      if (this.msgContent == null) return false;
+      this.$store.dispatch('sendMsg', [this.activeMsg, this.msgContent]);
+      this.msgContent = null;
+    },
     message(friend) {
       this.$store.commit('selectMessage', friend._id);
       this.activeMsg = friend._id;

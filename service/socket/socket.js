@@ -1,4 +1,5 @@
 const UserSchema = require('../db/schemas/UserSchema');
+const MessageSchema = require('../db/schemas/MessageSchema');
 const { v4: uuidv4 } = require('uuid');
 const mongoose = require('mongoose');
 
@@ -169,6 +170,35 @@ module.exports = (io) => {
                     let updatedUser = await UserSchema.findOneAndUpdate({ socketId: socket.id }, { $push: { messages: {userId: mongoose.Types.ObjectId(id) }}}, { new: true });
                     socket.emit('updateMessages', updatedUser.messages);
                 })
+            } catch (error) {
+                console.error(error);
+            }
+        });
+
+        socket.on('sendMessage', (obj) => {
+            try {
+                console.log(obj);
+                MessageSchema.create(obj, async(err, newMessage) => {
+                    if (err || !newMessage) return;
+
+                    let friend = await UserSchema.findOne({ _id: obj.users[1] });
+
+                    if (friend != null && friend.isOnline) {
+                        io.to(friend.socketId).emit('receiveMessage', newMessage);
+                    }
+
+                    socket.emit('receiveMessage', newMessage);
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        });
+
+        socket.on('getConversation', async (users) => {
+            try {
+                let messages = await MessageSchema.find({ users: { $all: users }});
+                console.log(users);
+                console.log(messages);
             } catch (error) {
                 console.error(error);
             }
