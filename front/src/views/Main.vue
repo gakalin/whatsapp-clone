@@ -75,8 +75,8 @@
       <v-card class="msgMain overflow-y-auto flex" flat color="transparent" v-if="this.$store.state.conversation != null">
         <v-card v-for="(val, index) in this.$store.getters.conversation" :key="index" :class="{ 'justify-end': isMyMessage(val.userId) == true, myMessage: isMyMessage(val.userId) == true}" class="pa-2 d-flex" color="transparent" flat>
           <div>
-            <span>{{ val.content }}</span>
-            <span class="date">{{ val.date }}</span>
+            <span>{{val.content }}</span>
+            <span class="date">{{ new Date(val.date).toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit', hour12: false}) }}</span>
           </div>
         </v-card>
       </v-card>
