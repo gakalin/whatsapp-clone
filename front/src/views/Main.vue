@@ -72,30 +72,13 @@
         </div>
       </v-card>
 
-      <v-card class="msgMain overflow-y-auto flex" flat color="transparent">
-
-        <v-card class="pa-2 d-flex justify-start" color="transparent" flat>
+      <v-card class="msgMain overflow-y-auto flex" flat color="transparent" v-if="this.$store.state.conversation != null">
+        <v-card v-for="(val, index) in this.$store.getters.conversation" :key="index" :class="{ 'justify-end': isMyMessage(val.userId) == true, myMessage: isMyMessage(val.userId) == true}" class="pa-2 d-flex" color="transparent" flat>
           <div>
-            <span>Yinelenen bir sayfa içeriğinin okuyucunun dikkatini dağıttığı bilinen bir gerçektir. Lorem Ipsum kullanmanın amacı, sürekli 'buraya metin gelecek, buraya metin gelecek' yazmaya kıyasla daha dengeli bir harf dağılımı sağlayarak okunurluğu artırmasıdır. Şu anda birçok masaüstü yayıncılık paketi ve web sayfa düzenleyicisi, varsayılan mıgır metinler olarak Lorem Ipsum kullanmaktadır. Ayrıca arama motorlarında 'lorem ipsum' anahtar sözcükleri ile arama yapıldığında henüz tasarım aşamasında olan çok sayıda site listelenir. Yıllar içinde, bazen kazara, bazen bilinçli olarak (örneğin mizah katılarak), çeşitli sürümleri geliştirilmiştir.
-            </span>
-            <span class="date">19:30</span>
+            <span>{{ val.content }}</span>
+            <span class="date">{{ val.date }}</span>
           </div>
         </v-card>
-
-        <v-card right class="me pa-2 d-flex justify-end" color="transparent" flat>
-          <div>
-            <span>test</span>
-            <span class="date">22:00</span>
-          </div>
-        </v-card>
-
-        <v-card right class="me pa-2 d-flex justify-end" color="transparent" flat>
-          <div>
-            <span>avadfasd fasdf456as d4f65asd4f65asd4f6</span>
-            <span class="date">22:00</span>
-          </div>
-        </v-card>
-
       </v-card>
 
       <v-footer color="#EDEDED" padless absolute fixed width="100%" class="rounded-0 ma-0 pa-0" style="border-top: 1px solid #d3d3d3;">
@@ -218,8 +201,8 @@
   text-indent: 10px;
   float: right;
 }
-.msgMain .v-card.me div {
-  background: #DCF8C6;
+.msgMain .v-card.myMessage div {
+  background: #DCF8C6!important;
 }
 .msgMain .v-card div {
   font-size: 0.90rem;
@@ -277,6 +260,9 @@ export default {
     msgContent: null,
   }),
   methods: {
+    isMyMessage(id) {
+      return this.$store.state.userId != id;
+    },
     sendMsg() {
       if (!this.activeMsg) return false;
       if (this.msgContent == null) return false;

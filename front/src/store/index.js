@@ -23,6 +23,13 @@ export default new Vuex.Store({
     'conversation': [],
   },
   getters: {
+    conversation(state) {
+      if (typeof state.conversation[0] == 'object') {
+        if ('messages' in state.conversation[0])
+          return state.conversation[0].messages;
+      }
+              
+    },
     messages(state) {
       return state.messages;
     },
@@ -50,11 +57,18 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    getConversation(state, data) {
+      if (data == null)
+        state.conversation = [];
+      else
+        state.conversation = (data);
+    },
     pushConversation(state, data) {
       state.conversation.push(data);
     },
     selectMessage(state, id) {
       state.message = state.messages.find(m => m._id == id);
+      this._vm.$socket.client.emit('getConversation', [state.userId, id]);
     },
     getMessages(state) {
       var arr = [];
@@ -183,6 +197,9 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    socket_getConversation({ commit }, data) {
+      commit('getConversation', data);
+    },
     socket_receiveMessage({ commit }, data) {
       commit('pushConversation', data);
     },
@@ -210,12 +227,11 @@ export default new Vuex.Store({
       if (!state.userMessages.find(m => m.userId == id)) {
         this._vm.$socket.client.emit('createMessage', id);
         setTimeout(() => {
-          commit('selectMessage', id);
-          this._vm.$socket.client.emit('getConversation', [ state.userId, id ] );
+          commit('selectMessage', id);          
         }, 500);
       } else {
-        commit('selectMessage', id);
         this._vm.$socket.client.emit('getConversation', [ state.userId, id ] );
+        commit('selectMessage', id);        
       }
     },
     filterFriends({ commit }, v) {

@@ -177,7 +177,6 @@ module.exports = (io) => {
 
         socket.on('sendMessage', (obj) => {
             try {
-                console.log(obj);
                 MessageSchema.create(obj, async(err, newMessage) => {
                     if (err || !newMessage) return;
 
@@ -197,8 +196,9 @@ module.exports = (io) => {
         socket.on('getConversation', async (users) => {
             try {
                 let messages = await MessageSchema.find({ users: { $all: users }});
-                console.log(users);
-                console.log(messages);
+                if (messages != null) {
+                    socket.emit('getConversation', messages);
+                }
             } catch (error) {
                 console.error(error);
             }
