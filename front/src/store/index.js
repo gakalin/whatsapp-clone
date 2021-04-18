@@ -61,10 +61,8 @@ export default new Vuex.Store({
       if (data == null)
         state.conversation = [];
       else
-        state.conversation = (data);
-    },
-    pushConversation(state, data) {
-      state.conversation.push(data);
+        state.conversation = data;
+      setTimeout(()=> document.querySelector(".msgMain").scrollTop = document.querySelector(".msgMain").scrollHeight);
     },
     selectMessage(state, id) {
       state.message = state.messages.find(m => m._id == id);
@@ -199,9 +197,6 @@ export default new Vuex.Store({
   actions: {
     socket_getConversation({ commit }, data) {
       commit('getConversation', data);
-    },
-    socket_receiveMessage({ commit }, data) {
-      commit('pushConversation', data);
     },
     sendMsg({ state }, arr) {
       let obj = {

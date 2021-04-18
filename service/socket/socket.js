@@ -175,19 +175,32 @@ module.exports = (io) => {
             }
         });
 
-        socket.on('sendMessage', (obj) => {
+        socket.on('sendMessage', async (obj) => {
             try {
-                MessageSchema.create(obj, async(err, newMessage) => {
-                    if (err || !newMessage) return;
+                let messages = await MessageSchema.find({ users: { $all: obj.users }});
+                if (messages == null) {
+                    MessageSchema.create(obj, async(err, newMessage) => {
+                        if (err || !newMessage) return;
+                        let friend = await UserSchema.findOne({ _id: obj.users[1] });
 
-                    let friend = await UserSchema.findOne({ _id: obj.users[1] });
+                        if (friend != null && friend.isOnline) {
+                            io.to(friend.socketId).emit('receiveMessage', newMessage);
+                        }
 
-                    if (friend != null && friend.isOnline) {
-                        io.to(friend.socketId).emit('receiveMessage', newMessage);
+                        socket.emit('receiveMessage', newMessage);
+                    });
+                } else {
+                    let newMessage = await MessageSchema.findOneAndUpdate({ users: { $all: obj.users }}, { $push: { messages: obj.messages[0]}}, { new: true });
+                    if (newMessage != null) {
+                        let friend = await UserSchema.findOne({ _id: obj.users[1] });
+
+                        if (friend != null && friend.isOnline) {
+                            io.to(friend.socketId).emit('getConversation', [newMessage]);
+                        }
+
+                        socket.emit('getConversation', [newMessage]);
                     }
-
-                    socket.emit('receiveMessage', newMessage);
-                });
+                }
             } catch (error) {
                 console.error(error);
             }
