@@ -13,6 +13,7 @@ app.use(fileUpload());
 app.use(cookieParser());
 app.use(cors({ origin: process.env.CORS_URL, credentials: true }));
 app.use(mongoSanitize());
+app.use("/uploads", express.static("uploads"));
 
 require('./routes')(app);
 const server = app.listen(process.env.PORT, () => {
